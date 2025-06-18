@@ -1,6 +1,4 @@
-// @ts-nocheck
-// Disabling TypeScript checking for this file because the AI flow is not yet defined.
-// TODO: Remove @ts-nocheck and define AttireSuggestion and AI flow types when available.
+
 "use server";
 
 import { firestore } from "@/lib/firebase";
@@ -68,6 +66,7 @@ export interface AttireSuggestion {
   description: string;
   imageUrl?: string; // Optional image URL
   storeUrl?: string; // Optional link to an online store
+  dataAiHint?: string; // Added to match mock data and frontend usage
 }
 
 // Placeholder for the AI flow function.
