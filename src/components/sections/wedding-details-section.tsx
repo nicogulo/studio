@@ -29,7 +29,7 @@ const WeddingDetailsSection: React.FC = () => {
   ];
 
   return (
-    <section id="details" className="py-16 bg-background">
+    <section id="wedding-details" className="py-16 bg-background">
       <div className="px-4">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
@@ -82,7 +82,7 @@ const WeddingDetailsSection: React.FC = () => {
               <iframe
                 src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d3966.521260322223!2d106.8195613!3d-6.1947413!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x2e69f4289bad4bad%3A0x112f08550fad31f0!2sMonumen%20Nasional!5e0!3m2!1sen!2sid!4v1620808228782!5m2!1sen!2sid"
                 width="100%"
-                height="100%" // Will be controlled by aspect ratio div
+                height="100%" 
                 style={{ border: 0 }}
                 allowFullScreen={true}
                 loading="lazy"
@@ -112,3 +112,4 @@ const WeddingDetailsSection: React.FC = () => {
 };
 
 export default WeddingDetailsSection;
+
