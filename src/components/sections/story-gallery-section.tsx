@@ -68,14 +68,14 @@ const StoryGallerySection: React.FC = () => {
   };
 
   return (
-    <section id="gallery" className="py-20 md:py-32 bg-background"> {/* Increased padding */}
+    <section id="gallery" className="py-20 md:py-32 bg-background">
       <div className="container mx-auto px-4">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="font-headline text-4xl md:text-5xl text-primary-foreground text-center mb-16" // Increased margin-bottom
+          className="font-headline text-3xl md:text-4xl lg:text-5xl text-primary-foreground text-center mb-12 md:mb-16"
         >
           Our Story
         </motion.h2>
@@ -103,12 +103,12 @@ const StoryGallerySection: React.FC = () => {
                       onClick={() => openLightbox(item.src, item.alt)}
                       aria-label={`View image: ${item.caption}`}
                     >
-                      <div className="relative w-full h-80"> {/* Fixed height for image container */}
+                      <div className="relative w-full h-64 sm:h-72 md:h-80"> {/* Adjusted height for mobile-first */}
                         <Image
                           src={item.src}
                           alt={item.alt}
                           fill
-                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
                           style={{ objectFit: "cover" }}
                           className="group-hover:scale-105 transition-transform duration-300 rounded-t-lg"
                           data-ai-hint={item.hint}
@@ -116,8 +116,8 @@ const StoryGallerySection: React.FC = () => {
                         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300 rounded-t-lg" />
                       </div>
                     </CardContent>
-                    <CardFooter className="p-4 bg-card-foreground/5 mt-auto">
-                      <p className="text-sm font-body text-muted-foreground text-center w-full">{item.caption}</p>
+                    <CardFooter className="p-3 sm:p-4 bg-card-foreground/5 mt-auto">
+                      <p className="text-xs sm:text-sm font-body text-muted-foreground text-center w-full">{item.caption}</p>
                     </CardFooter>
                   </Card>
                 </motion.div>
