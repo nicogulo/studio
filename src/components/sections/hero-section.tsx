@@ -19,7 +19,7 @@ const HeroSection: React.FC = () => {
       className="relative flex flex-col items-center justify-center min-h-screen text-center text-white" // Removed bg-background, will be covered by image
     >
       <Image
-        src="https://placehold.co/1280x1920.png" // Placeholder for a couple image
+        src="https://images.unsplash.com/photo-1563808599481-34a342e44508?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb3VwbGUlMjB3ZWRkaW5nfGVufDB8fHx8MTc1MDI2ODI1Mnww&ixlib=rb-4.1.0&q=80&w=1080" // Updated image URL
         alt="Nico and Trio"
         layout="fill"
         objectFit="cover"
