@@ -11,7 +11,7 @@ import { ScrollArea } from "@/components/ui/scroll-area";
 
 export default function HomePage() {
   return (
-    <div className="flex min-h-screen flex-col items-center justify-center p-2 sm:p-4 bg-gray-800">
+    <div className="flex min-h-screen flex-col items-center justify-center bg-gray-800">
       <main className="w-full max-w-sm sm:max-w-md bg-background shadow-2xl relative h-screen">
         <ScrollArea className="h-full">
           <div className="flex flex-col">
