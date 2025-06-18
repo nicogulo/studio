@@ -1,7 +1,9 @@
+
 "use client";
 
 import { useEffect } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState } from "react";
+import { useFormStatus } from "react-dom";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -28,7 +30,7 @@ function SubmitButton() {
 }
 
 const AttireSuggestionsSection: React.FC = () => {
-  const [state, formAction] = useFormState(fetchAttireSuggestions, initialState);
+  const [state, formAction] = useActionState(fetchAttireSuggestions, initialState);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -53,14 +55,14 @@ const AttireSuggestionsSection: React.FC = () => {
         >
           Attire Inspiration
         </motion.h2>
-        <motion.p 
+        <motion.p
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.3 }}
           transition={{ duration: 0.5, delay: 0.1 }}
           className="font-body text-lg text-muted-foreground text-center mb-12 max-w-2xl mx-auto"
         >
-          Need some ideas for what to wear? Our dress code is formal, but feel free to get creative! 
+          Need some ideas for what to wear? Our dress code is formal, but feel free to get creative!
           Enter a style or keyword below for some AI-powered suggestions.
         </motion.p>
 
@@ -128,7 +130,7 @@ const AttireSuggestionsSection: React.FC = () => {
           </motion.div>
         )}
         {state.query && state.success && (!state.suggestions || state.suggestions.length === 0) && (
-           <motion.p 
+           <motion.p
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 0.5 }}
