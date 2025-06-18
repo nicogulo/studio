@@ -1,3 +1,4 @@
+
 import type { Metadata } from 'next';
 import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
@@ -8,7 +9,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: 'Forever & Always | Nico ❤️ Trio Wedding',
     description: 'Join Nico and Trio as they celebrate their wedding. Find all the details and RSVP here.',
-    images: [{ url: '/og-image.png', width: 1200, height: 630 }], // Placeholder, suggest creating an actual OG image
+    images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   }
 };
 

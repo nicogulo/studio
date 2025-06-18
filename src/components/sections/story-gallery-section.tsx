@@ -68,14 +68,14 @@ const StoryGallerySection: React.FC = () => {
   };
 
   return (
-    <section id="gallery" className="py-20 md:py-32 bg-background">
-      <div className="container mx-auto px-4">
+    <section id="gallery" className="py-16 bg-background">
+      <div className="px-4">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="font-headline text-3xl md:text-4xl lg:text-5xl text-primary-foreground text-center mb-12 md:mb-16"
+          className="font-headline text-3xl text-primary-foreground text-center mb-10"
         >
           Our Story
         </motion.h2>
@@ -85,11 +85,11 @@ const StoryGallerySection: React.FC = () => {
             align: "start",
             loop: true,
           }}
-          className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto"
+          className="w-full max-w-xs mx-auto" // Simplified max-width for mobile-centric view
         >
           <CarouselContent className="-ml-4">
             {galleryItems.map((item, index) => (
-              <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
+              <CarouselItem key={index} className="pl-4 basis-full"> {/* Ensure one item per view */}
                 <motion.div
                   initial={{ opacity: 0, y: 20 }}
                   whileInView={{ opacity: 1, y: 0 }}
@@ -103,12 +103,12 @@ const StoryGallerySection: React.FC = () => {
                       onClick={() => openLightbox(item.src, item.alt)}
                       aria-label={`View image: ${item.caption}`}
                     >
-                      <div className="relative w-full h-64 sm:h-72 md:h-80"> {/* Adjusted height for mobile-first */}
+                      <div className="relative w-full h-64"> {/* Fixed height for mobile view */}
                         <Image
                           src={item.src}
                           alt={item.alt}
                           fill
-                          sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw"
+                          sizes="100vw" // Simplified sizes for mobile-centric view
                           style={{ objectFit: "cover" }}
                           className="group-hover:scale-105 transition-transform duration-300 rounded-t-lg"
                           data-ai-hint={item.hint}
@@ -116,16 +116,16 @@ const StoryGallerySection: React.FC = () => {
                         <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300 rounded-t-lg" />
                       </div>
                     </CardContent>
-                    <CardFooter className="p-3 sm:p-4 bg-card-foreground/5 mt-auto">
-                      <p className="text-xs sm:text-sm font-body text-muted-foreground text-center w-full">{item.caption}</p>
+                    <CardFooter className="p-3 bg-card-foreground/5 mt-auto">
+                      <p className="text-xs font-body text-muted-foreground text-center w-full">{item.caption}</p>
                     </CardFooter>
                   </Card>
                 </motion.div>
               </CarouselItem>
             ))}
           </CarouselContent>
-          <CarouselPrevious className="hidden sm:flex" />
-          <CarouselNext className="hidden sm:flex" />
+          <CarouselPrevious className="hidden sm:flex -left-8" /> {/* Adjusted position for narrower container */}
+          <CarouselNext className="hidden sm:flex -right-8" /> {/* Adjusted position for narrower container */}
         </Carousel>
       </div>
       <Lightbox imageUrl={lightboxImage} altText={lightboxAlt} onClose={closeLightbox} />
