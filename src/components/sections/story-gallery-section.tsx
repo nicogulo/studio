@@ -16,37 +16,37 @@ import {
 
 const galleryItems = [
   {
-    src: "https://placehold.co/600x400.png",
+    src: "https://images.unsplash.com/photo-1525206809752-65312b959c88?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb3VwbGUlMjBsYXVnaGluZ3xlbnwwfHx8fDE3NTAyNjc2Nzh8MA&ixlib=rb-4.1.0&q=80&w=1080",
     alt: "Nico and Trio sharing a laugh",
     caption: "How We Met",
     hint: "couple laughing"
   },
   {
-    src: "https://placehold.co/400x600.png",
+    src: "https://images.unsplash.com/photo-1601239538638-e3d0e7bf6c7a?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjb3VwbGUlMjBwcm9wb3NhbHxlbnwwfHx8fDE3NTAyNjc2Nzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
     alt: "The proposal moment",
     caption: "The Proposal",
     hint: "couple proposal"
   },
   {
-    src: "https://placehold.co/600x450.png",
+    src: "https://images.unsplash.com/photo-1541268944410-5b020609992d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjb3VwbGUlMjB0cmF2ZWx8ZW58MHx8fHwxNzUwMjY3Njc4fDA&ixlib=rb-4.1.0&q=80&w=1080",
     alt: "A memorable vacation",
     caption: "Our Adventures",
     hint: "couple travel"
   },
   {
-    src: "https://placehold.co/500x700.png",
+    src: "https://images.unsplash.com/photo-1600038937815-57cbbba6ba7d?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxMHx8aGFwcHklMjBjb3VwbGV8ZW58MHx8fHwxNzUwMjY3Njc5fDA&ixlib=rb-4.1.0&q=80&w=1080",
     alt: "Candid moment of joy",
     caption: "Everyday Joy",
     hint: "happy couple"
   },
   {
-    src: "https://placehold.co/700x500.png",
+    src: "https://images.unsplash.com/photo-1655490162630-175929877280?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb3VwbGUlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3NTAyNjc2Nzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
     alt: "Celebrating an anniversary together",
     caption: "Milestones",
     hint: "couple celebration"
   },
   {
-    src: "https://placehold.co/600x600.png",
+    src: "https://images.unsplash.com/photo-1645563838122-cbc43ec4e81f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb3VwbGUlMjBmdXR1cmV8ZW58MHx8fHwxNzUwMjY3Njc5fDA&ixlib=rb-4.1.0&q=80&w=1080",
     alt: "Looking towards the future, happy together",
     caption: "Our Journey Together",
     hint: "couple future"
