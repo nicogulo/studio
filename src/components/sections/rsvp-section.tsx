@@ -1,9 +1,8 @@
-
 "use client";
 
 import { useEffect } from "react";
 import { useFormStatus } from "react-dom";
-import { useActionState } from "react";
+import { useActionState } from "react"; // Corrected import
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -23,7 +22,7 @@ const initialState: RsvpFormState = {
 function SubmitButton() {
   const { pending } = useFormStatus();
   return (
-    <Button type="submit" disabled={pending} className="w-full md:w-auto bg-primary hover:bg-primary/90 text-primary-foreground">
+    <Button type="submit" disabled={pending} className="w-full md:w-auto bg-primary hover:bg-primary/80 text-primary-foreground rounded-full border border-primary-foreground/20 shadow-sm hover:shadow-md transition-all">
       {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
       Send RSVP
     </Button>
@@ -45,13 +44,13 @@ const RsvpSection: React.FC = () => {
   }, [state, toast]);
   
   return (
-    <section id="rsvp" className="py-16 md:py-24 bg-secondary/30">
+    <section id="rsvp" className="py-20 md:py-32 bg-secondary/20"> {/* Increased padding, softer background */}
       <div className="container mx-auto px-4">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
           className="font-headline text-4xl md:text-5xl text-primary-foreground text-center mb-12"
         >
           Will You Be Joining Us?
@@ -60,13 +59,13 @@ const RsvpSection: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
         >
-          <Card className="max-w-2xl mx-auto shadow-xl bg-card">
-            <CardHeader>
+          <Card className="max-w-2xl mx-auto shadow-xl bg-card rounded-lg">
+            <CardHeader className="pt-8"> {/* Adjusted padding */}
               <CardTitle className="font-headline text-3xl text-primary-foreground">Share Your Response</CardTitle>
-              <CardDescription className="font-body text-muted-foreground">
+              <CardDescription className="font-body text-muted-foreground pt-1">
                 Please let us know if you can make it by November 20, 2025.
               </CardDescription>
             </CardHeader>
@@ -75,7 +74,7 @@ const RsvpSection: React.FC = () => {
                 <div className="space-y-2">
                   <Label htmlFor="fullName" className="font-body text-foreground">Full Name</Label>
                   <Input id="fullName" name="fullName" placeholder="Your full name" required className="font-body"/>
-                  {state.errors?.fullName && <p className="text-sm text-destructive">{state.errors.fullName.join(", ")}</p>}
+                  {state.errors?.fullName && <p className="text-sm text-destructive font-body">{state.errors.fullName.join(", ")}</p>}
                 </div>
 
                 <div className="space-y-2">
@@ -90,17 +89,17 @@ const RsvpSection: React.FC = () => {
                       <Label htmlFor="attending-no">No, with regrets</Label>
                     </div>
                   </RadioGroup>
-                  {state.errors?.attending && <p className="text-sm text-destructive">{state.errors.attending.join(", ")}</p>}
+                  {state.errors?.attending && <p className="text-sm text-destructive font-body">{state.errors.attending.join(", ")}</p>}
                 </div>
 
                 <div className="space-y-2">
                   <Label htmlFor="message" className="font-body text-foreground">Message / Wishes (Optional)</Label>
                   <Textarea id="message" name="message" placeholder="Leave a message for the couple..." rows={4} className="font-body"/>
-                  {state.errors?.message && <p className="text-sm text-destructive">{state.errors.message.join(", ")}</p>}
+                  {state.errors?.message && <p className="text-sm text-destructive font-body">{state.errors.message.join(", ")}</p>}
                 </div>
-                {state.errors?._form && <p className="text-sm text-destructive">{state.errors._form.join(", ")}</p>}
+                {state.errors?._form && <p className="text-sm text-destructive font-body">{state.errors._form.join(", ")}</p>}
               </CardContent>
-              <CardFooter>
+              <CardFooter className="pb-8"> {/* Adjusted padding */}
                 <SubmitButton />
               </CardFooter>
             </form>

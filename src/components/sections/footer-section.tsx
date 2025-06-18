@@ -8,14 +8,14 @@ const FooterSection: React.FC = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <footer className="py-12 bg-secondary/20 text-center">
+    <footer className="py-16 md:py-24 bg-secondary/10 text-center"> {/* Increased padding, softer background */}
       <div className="container mx-auto px-4">
-        <FloralDivider className="mb-6" />
+        <FloralDivider className="mb-8" /> {/* Adjusted margin */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <p className="font-headline text-2xl md:text-3xl text-primary-foreground mb-4">
             With love, Nico & Trio

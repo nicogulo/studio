@@ -31,7 +31,7 @@ const CountdownTimerSection: React.FC = () => {
       };
     };
     
-    setTimeLeft(calculateTimeLeft()); // Initial calculation client-side
+    setTimeLeft(calculateTimeLeft());
 
     const timer = setInterval(() => {
       setTimeLeft(calculateTimeLeft());
@@ -41,24 +41,23 @@ const CountdownTimerSection: React.FC = () => {
   }, [weddingDate]);
 
   if (!timeLeft) {
-    // Render placeholder or loading state to avoid hydration mismatch
     return (
-      <section className="py-16 md:py-24 bg-secondary/30 text-center">
+      <section className="py-20 md:py-32 bg-secondary/20 text-center"> {/* Increased padding, softer background */}
         <div className="container mx-auto px-4">
           <motion.h2
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true, amount: 0.3 }}
-            transition={{ duration: 0.5 }}
-            className="font-headline text-4xl md:text-5xl text-primary-foreground mb-2"
+            viewport={{ once: true, amount: 0.2 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="font-headline text-4xl md:text-5xl text-primary-foreground mb-4"
           >
-            Counting Down To Our Big Day
+            Counting Down
           </motion.h2>
-          <div className="flex justify-center space-x-2 sm:space-x-4 md:space-x-8 mt-8">
+          <div className="flex justify-center space-x-2 sm:space-x-4 md:space-x-6 mt-8">
             {[ 'Days', 'Hours', 'Minutes', 'Seconds'].map((unit) => (
-                <div key={unit} className="p-3 md:p-6 bg-background/70 rounded-lg shadow-lg w-20 h-20 md:w-32 md:h-32 flex flex-col justify-center items-center">
-                  <span className="font-headline text-2xl md:text-5xl text-primary animate-pulse">--</span>
-                  <span className="font-body text-xs md:text-sm text-primary-foreground/80 uppercase">{unit}</span>
+                <div key={unit} className="p-3 md:p-5 bg-background/80 rounded-lg shadow-md w-20 h-20 md:w-28 md:h-28 flex flex-col justify-center items-center">
+                  <span className="font-headline text-2xl md:text-4xl text-primary animate-pulse">--</span>
+                  <span className="font-body text-xs md:text-sm text-muted-foreground uppercase">{unit}</span>
                 </div>
               ))}
           </div>
@@ -75,40 +74,40 @@ const CountdownTimerSection: React.FC = () => {
   ];
 
   return (
-    <section className="py-16 md:py-24 bg-secondary/30 text-center">
+    <section className="py-20 md:py-32 bg-secondary/20 text-center"> {/* Increased padding, softer background */}
       <div className="container mx-auto px-4">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5 }}
-          className="font-headline text-4xl md:text-5xl text-primary-foreground mb-2"
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="font-headline text-4xl md:text-5xl text-primary-foreground mb-3"
         >
-          Counting Down To Our Big Day
+          Counting Down
         </motion.h2>
         <motion.p 
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
-          className="font-body text-lg text-primary-foreground/80 mb-12"
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
+          className="font-body text-lg text-muted-foreground mb-10"
         >
-          December 20, 2025
+          To Our Special Day: December 20, 2025
         </motion.p>
-        <div className="flex flex-wrap justify-center gap-4 md:gap-8">
+        <div className="flex flex-wrap justify-center gap-4 md:gap-6"> {/* Reduced gap */}
           {timeUnits.map((unit, index) => (
             <motion.div
               key={unit.label}
-              initial={{ opacity: 0, scale: 0.5 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, amount: 0.3 }}
-              transition={{ duration: 0.5, delay: 0.3 + index * 0.1 }}
-              className="p-4 md:p-6 bg-background/70 rounded-xl shadow-xl w-28 h-28 md:w-36 md:h-36 flex flex-col justify-center items-center glow"
+              initial={{ opacity: 0, scale: 0.9, y: 10 }}
+              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              viewport={{ once: true, amount: 0.2 }}
+              transition={{ duration: 0.4, delay: 0.2 + index * 0.05, ease: "easeOut" }}
+              className="p-4 md:p-5 bg-background/90 rounded-xl shadow-lg w-28 h-28 md:w-32 md:h-32 flex flex-col justify-center items-center" // Removed glow class
             >
-              <span className="font-headline text-3xl md:text-6xl text-primary">
+              <span className="font-headline text-3xl md:text-5xl text-primary">
                 {unit.value < 10 ? `0${unit.value}` : unit.value}
               </span>
-              <span className="font-body text-sm md:text-base text-primary-foreground/80 uppercase mt-1">
+              <span className="font-body text-sm md:text-base text-muted-foreground uppercase mt-1">
                 {unit.label}
               </span>
             </motion.div>

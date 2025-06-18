@@ -60,28 +60,28 @@ const StoryGallerySection: React.FC = () => {
   };
 
   return (
-    <section id="gallery" className="py-16 md:py-24 bg-background">
+    <section id="gallery" className="py-20 md:py-32 bg-background"> {/* Increased padding */}
       <div className="container mx-auto px-4">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
-          viewport={{ once: true, amount: 0.3 }}
-          transition={{ duration: 0.5 }}
-          className="font-headline text-4xl md:text-5xl text-primary-foreground text-center mb-12"
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          className="font-headline text-4xl md:text-5xl text-primary-foreground text-center mb-16" // Increased margin-bottom
         >
           Our Story
         </motion.h2>
-        <div className="columns-1 sm:columns-2 md:columns-3 gap-6 space-y-6">
+        <div className="columns-1 sm:columns-2 md:columns-3 gap-6 sm:gap-8 space-y-6 sm:space-y-8"> {/* Increased gap */}
           {galleryItems.map((item, index) => (
             <motion.div
               key={index}
               initial={{ opacity: 0, y: 20 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5, delay: index * 0.1 }}
+              transition={{ duration: 0.5, delay: index * 0.05, ease: "easeOut" }} // Subtle delay
               className="break-inside-avoid"
             >
-              <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card">
+              <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card rounded-lg"> {/* Ensure rounded-lg is applied */}
                 <CardContent className="p-0">
                   <button
                     onClick={() => openLightbox(item.src, item.alt)}
@@ -93,10 +93,10 @@ const StoryGallerySection: React.FC = () => {
                       alt={item.alt}
                       width={600}
                       height={item.src.includes('400x600') || item.src.includes('500x700') ? 600 : 400}
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300"
+                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300 rounded-t-lg" // Added rounded-t-lg
                       data-ai-hint={item.hint}
                     />
-                     <div className="absolute inset-0 bg-black/20 group-hover:bg-black/0 transition-colors duration-300" />
+                     <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300 rounded-t-lg" /> {/* More subtle overlay */}
                   </button>
                 </CardContent>
                 <CardFooter className="p-4 bg-card-foreground/5">

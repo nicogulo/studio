@@ -27,12 +27,12 @@ const Lightbox: React.FC<LightboxProps> = ({ imageUrl, altText, onClose }) => {
           aria-labelledby="lightbox-image"
         >
           <motion.div
-            initial={{ scale: 0.8, opacity: 0 }}
+            initial={{ scale: 0.85, opacity: 0 }} // Adjusted initial scale
             animate={{ scale: 1, opacity: 1 }}
-            exit={{ scale: 0.8, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 300, damping: 30 }}
-            className="relative max-w-3xl max-h-[90vh] bg-background rounded-lg shadow-2xl overflow-hidden"
-            onClick={(e) => e.stopPropagation()} // Prevent closing when clicking on the image itself
+            exit={{ scale: 0.85, opacity: 0 }}
+            transition={{ type: "spring", stiffness: 260, damping: 25 }} // Adjusted spring
+            className="relative max-w-3xl max-h-[90vh] bg-background rounded-lg shadow-2xl overflow-hidden" // Ensure rounded-lg
+            onClick={(e) => e.stopPropagation()}
           >
             <Image
               id="lightbox-image"
@@ -40,12 +40,12 @@ const Lightbox: React.FC<LightboxProps> = ({ imageUrl, altText, onClose }) => {
               alt={altText}
               width={1200}
               height={800}
-              className="object-contain w-full h-full max-h-[80vh]"
+              className="object-contain w-full h-full max-h-[80vh] rounded-lg" // Added rounded-lg to image itself
               data-ai-hint="couple photo"
             />
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 text-white bg-black/50 rounded-full hover:bg-black/75 transition-colors"
+              className="absolute top-3 right-3 p-2 text-foreground bg-background/60 hover:bg-background/90 rounded-full transition-colors" // Adjusted colors for better theme fit
               aria-label="Close lightbox"
             >
               <X size={24} />
