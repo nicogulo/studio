@@ -1,3 +1,4 @@
+
 "use client";
 
 import Image from "next/image";
@@ -5,6 +6,13 @@ import { useState } from "react";
 import Lightbox from "@/components/lightbox";
 import { motion } from "framer-motion";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
+import {
+  Carousel,
+  CarouselContent,
+  CarouselItem,
+  CarouselNext,
+  CarouselPrevious,
+} from "@/components/ui/carousel"; // Assuming carousel is added via shadcn-ui
 
 const galleryItems = [
   {
@@ -71,41 +79,54 @@ const StoryGallerySection: React.FC = () => {
         >
           Our Story
         </motion.h2>
-        <div className="columns-1 sm:columns-2 md:columns-3 gap-6 sm:gap-8 space-y-6 sm:space-y-8"> {/* Increased gap */}
-          {galleryItems.map((item, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, y: 20 }}
-              whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5, delay: index * 0.05, ease: "easeOut" }} // Subtle delay
-              className="break-inside-avoid"
-            >
-              <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card rounded-lg"> {/* Ensure rounded-lg is applied */}
-                <CardContent className="p-0">
-                  <button
-                    onClick={() => openLightbox(item.src, item.alt)}
-                    className="block w-full aspect-w-1 aspect-h-1 relative group"
-                    aria-label={`View image: ${item.caption}`}
-                  >
-                    <Image
-                      src={item.src}
-                      alt={item.alt}
-                      width={600}
-                      height={item.src.includes('400x600') || item.src.includes('500x700') ? 600 : 400}
-                      className="object-cover w-full h-full group-hover:scale-105 transition-transform duration-300 rounded-t-lg" // Added rounded-t-lg
-                      data-ai-hint={item.hint}
-                    />
-                     <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300 rounded-t-lg" /> {/* More subtle overlay */}
-                  </button>
-                </CardContent>
-                <CardFooter className="p-4 bg-card-foreground/5">
-                  <p className="text-sm font-body text-muted-foreground text-center w-full">{item.caption}</p>
-                </CardFooter>
-              </Card>
-            </motion.div>
-          ))}
-        </div>
+        
+        <Carousel
+          opts={{
+            align: "start",
+            loop: true,
+          }}
+          className="w-full max-w-xs sm:max-w-md md:max-w-2xl lg:max-w-4xl xl:max-w-6xl mx-auto"
+        >
+          <CarouselContent className="-ml-4">
+            {galleryItems.map((item, index) => (
+              <CarouselItem key={index} className="pl-4 md:basis-1/2 lg:basis-1/3">
+                <motion.div
+                  initial={{ opacity: 0, y: 20 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true, amount: 0.2 }}
+                  transition={{ duration: 0.5, delay: index * 0.05, ease: "easeOut" }}
+                  className="h-full"
+                >
+                  <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card rounded-lg h-full flex flex-col">
+                    <CardContent 
+                      className="p-0 relative group cursor-pointer flex-grow" 
+                      onClick={() => openLightbox(item.src, item.alt)}
+                      aria-label={`View image: ${item.caption}`}
+                    >
+                      <div className="relative w-full h-80"> {/* Fixed height for image container */}
+                        <Image
+                          src={item.src}
+                          alt={item.alt}
+                          fill
+                          sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                          style={{ objectFit: "cover" }}
+                          className="group-hover:scale-105 transition-transform duration-300 rounded-t-lg"
+                          data-ai-hint={item.hint}
+                        />
+                        <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300 rounded-t-lg" />
+                      </div>
+                    </CardContent>
+                    <CardFooter className="p-4 bg-card-foreground/5 mt-auto">
+                      <p className="text-sm font-body text-muted-foreground text-center w-full">{item.caption}</p>
+                    </CardFooter>
+                  </Card>
+                </motion.div>
+              </CarouselItem>
+            ))}
+          </CarouselContent>
+          <CarouselPrevious className="hidden sm:flex" />
+          <CarouselNext className="hidden sm:flex" />
+        </Carousel>
       </div>
       <Lightbox imageUrl={lightboxImage} altText={lightboxAlt} onClose={closeLightbox} />
     </section>
