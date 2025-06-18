@@ -52,26 +52,25 @@ const HeroSection: React.FC = () => {
         transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
         className="relative z-10 flex flex-col items-center justify-between h-full w-full p-6" 
       >
-        <div className="flex-grow-[0.25]"></div>
-
+        {/* Removed top spacer div */}
         <div className="flex flex-col items-center">
-          <p className="font-headline text-xs sm:text-sm uppercase tracking-wider text-white/90 mb-2">
+          <p className="font-body text-xs sm:text-sm uppercase tracking-wider text-white/90 mb-2">
             The Wedding of
           </p>
           <h1 className="font-headline text-4xl sm:text-5xl text-white mb-3">
             Nico & Trio
           </h1>
-          <p className="font-body text-sm sm:text-base text-white/80 mb-8 sm:mb-12">
+          <p className="font-body text-sm sm:text-base text-white/80">
             Tuesday, 02 November 2027
           </p>
         </div>
 
-        <div className="flex-grow"></div>
+        {/* Removed flex-grow spacer div */}
         
         <div className="w-full max-w-xs">
           <Button
             size="lg"
-            className="font-body text-sm sm:text-base bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-full border border-white/40 shadow-lg transition-all hover:shadow-xl focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black/50 w-full py-2.5 sm:py-3"
+            className="font-body text-sm sm:text-base bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-lg border border-white/40 shadow-lg transition-all hover:shadow-xl focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black/50 w-full py-2.5 sm:py-3"
             onClick={handleScrollToDetails}
             aria-label="Buka Undangan dan lihat detail pernikahan"
           >
@@ -82,7 +81,7 @@ const HeroSection: React.FC = () => {
             *Mohon maaf apabila ada kesalahan penulisan nama/gelar
           </p>
         </div>
-        <div className="pb-3 sm:pb-4"></div>
+        {/* Removed bottom padding div */}
       </motion.div>
     </section>
   );
