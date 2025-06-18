@@ -7,24 +7,20 @@ import Image from "next/image";
 
 const HeroSection: React.FC = () => {
   const handleScrollToDetails = () => {
-    // When in ScrollArea, we need to target the scrollable element within it.
-    // This is a common pattern for shadcn/ui ScrollArea.
     const scrollableViewport = document.querySelector(
       'div[data-radix-scroll-area-viewport="true"]'
     );
     const detailsSection = document.getElementById("details");
 
     if (detailsSection && scrollableViewport) {
-      // Calculate offset relative to the scrollable viewport
       const scrollTop = scrollableViewport.scrollTop;
       const offsetTop = detailsSection.offsetTop;
       
       scrollableViewport.scrollTo({
-        top: offsetTop + scrollTop - (scrollableViewport.clientHeight * 0.1), // Adjust offset if needed
+        top: offsetTop + scrollTop - (scrollableViewport.clientHeight * 0.1), 
         behavior: "smooth",
       });
     } else if (detailsSection) {
-      // Fallback for direct scrolling if viewport not found (less likely with ScrollArea)
        detailsSection.scrollIntoView({ behavior: 'smooth' });
     }
   };
@@ -50,10 +46,9 @@ const HeroSection: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-        className="relative z-10 flex flex-col items-center justify-between h-full w-full p-6" 
+        className="relative z-10 flex flex-col items-center justify-between h-full w-full px-6" 
       >
-        {/* Removed top spacer div */}
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center pt-6"> {/* Added pt-6 for some top spacing */}
           <p className="font-body text-xs sm:text-sm uppercase tracking-wider text-white/90 mb-2">
             The Wedding of
           </p>
@@ -64,10 +59,8 @@ const HeroSection: React.FC = () => {
             Tuesday, 02 November 2027
           </p>
         </div>
-
-        {/* Removed flex-grow spacer div */}
         
-        <div className="w-full max-w-xs">
+        <div className="w-full max-w-xs pb-6"> {/* Added pb-6 for some bottom spacing */}
           <Button
             size="lg"
             className="font-body text-sm sm:text-base bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-lg border border-white/40 shadow-lg transition-all hover:shadow-xl focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black/50 w-full py-2.5 sm:py-3"
@@ -81,7 +74,6 @@ const HeroSection: React.FC = () => {
             *Mohon maaf apabila ada kesalahan penulisan nama/gelar
           </p>
         </div>
-        {/* Removed bottom padding div */}
       </motion.div>
     </section>
   );
