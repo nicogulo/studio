@@ -12,7 +12,7 @@ import {
   CarouselItem,
   CarouselNext,
   CarouselPrevious,
-} from "@/components/ui/carousel"; // Assuming carousel is added via shadcn-ui
+} from "@/components/ui/carousel";
 
 const galleryItems = [
   {
@@ -25,7 +25,7 @@ const galleryItems = [
     src: "https://placehold.co/400x600.png",
     alt: "The proposal moment",
     caption: "The Proposal",
-    hint: "marriage proposal"
+    hint: "couple proposal"
   },
   {
     src: "https://placehold.co/600x450.png",
@@ -35,19 +35,19 @@ const galleryItems = [
   },
   {
     src: "https://placehold.co/500x700.png",
-    alt: "Candid moment",
+    alt: "Candid moment of joy",
     caption: "Everyday Joy",
     hint: "happy couple"
   },
   {
     src: "https://placehold.co/700x500.png",
-    alt: "Celebrating an anniversary",
+    alt: "Celebrating an anniversary together",
     caption: "Milestones",
     hint: "couple celebration"
   },
   {
     src: "https://placehold.co/600x600.png",
-    alt: "Looking towards the future",
+    alt: "Looking towards the future, happy together",
     caption: "Our Journey Together",
     hint: "couple future"
   },
