@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect } from "react";
-import { useFormState, useFormStatus } from "react-dom";
+import { useActionState, useFormStatus } from "react-dom"; // useFormStatus is correct here
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,6 +12,7 @@ import { useToast } from "@/hooks/use-toast";
 import { handleRsvpSubmit, RsvpFormState } from "@/app/actions";
 import { motion } from "framer-motion";
 import { Send, Loader2 } from "lucide-react";
+import { useActionState as useReactActionState } from "react"; // Import useActionState from react
 
 const initialState: RsvpFormState = {
   success: false,
@@ -29,7 +30,7 @@ function SubmitButton() {
 }
 
 const RsvpSection: React.FC = () => {
-  const [state, formAction] = useFormState(handleRsvpSubmit, initialState);
+  const [state, formAction] = useReactActionState(handleRsvpSubmit, initialState); // Use useActionState from react
   const { toast } = useToast();
 
   useEffect(() => {
