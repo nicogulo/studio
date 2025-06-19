@@ -5,24 +5,38 @@ import { motion } from "framer-motion";
 import { Mail } from "lucide-react";
 import Image from "next/image";
 
-const HeroSection: React.FC = () => {
-  const handleScrollToDetails = () => {
-    const scrollableViewport = document.querySelector(
-      'div[data-radix-scroll-area-viewport="true"]'
-    );
-    const detailsSection = document.getElementById("wedding-details"); // Corrected ID
+interface HeroSectionProps {
+  onUnlockScroll: () => void;
+}
 
-    if (detailsSection && scrollableViewport) {
-      const scrollTop = scrollableViewport.scrollTop;
-      const offsetTop = detailsSection.offsetTop;
-      
-      scrollableViewport.scrollTo({
-        top: offsetTop + scrollTop - (scrollableViewport.clientHeight * 0.1), 
-        behavior: "smooth",
-      });
-    } else if (detailsSection) {
-       detailsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    }
+const HeroSection: React.FC<HeroSectionProps> = ({ onUnlockScroll }) => {
+  const handleScrollToDetails = () => {
+    onUnlockScroll(); // Unlock scroll first
+
+    requestAnimationFrame(() => {
+      const scrollableViewport = document.querySelector(
+        'div[data-radix-scroll-area-viewport="true"]'
+      );
+      const detailsSection = document.getElementById("wedding-details");
+
+      if (detailsSection && scrollableViewport) {
+        const scrollTop = scrollableViewport.scrollTop; // Current scroll position of the viewport
+        const offsetTop = detailsSection.offsetTop; // Target element's offset from the top of the viewport
+        
+        // Calculate the target scroll position
+        // Subtract a small offset to ensure the section title is visible (e.g., 10% of viewport height)
+        const scrollTarget = offsetTop + scrollTop - (scrollableViewport.clientHeight * 0.1);
+        
+        scrollableViewport.scrollTo({
+          top: scrollTarget, 
+          behavior: "smooth",
+        });
+      } else if (detailsSection) {
+        // Fallback for environments where scrollableViewport might not be found immediately
+        // or if the scroll area isn't the direct parent.
+         detailsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }
+    });
   };
 
   return (
@@ -46,16 +60,16 @@ const HeroSection: React.FC = () => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-        className="relative z-10 flex flex-col items-center justify-between h-screen w-full px-6 py-6" 
+        className="relative z-10 flex h-screen w-full flex-col items-center justify-between px-6 py-6"
       >
         <div className="flex flex-col items-center">
-          <p className="font-body text-xs sm:text-sm uppercase tracking-wider text-white/90 mb-2">
+          <p className="font-body text-xs uppercase tracking-wider text-white/90 sm:text-sm">
             The Wedding of
           </p>
-          <h1 className="font-headline text-4xl sm:text-5xl text-white mb-3">
+          <h1 className="font-headline text-4xl text-white sm:text-5xl">
             Nico & Trio
           </h1>
-          <p className="font-body text-sm sm:text-base text-white/80">
+          <p className="font-body text-sm text-white/80 sm:text-base">
             Tuesday, 02 November 2027
           </p>
         </div>
@@ -63,14 +77,14 @@ const HeroSection: React.FC = () => {
         <div className="w-full max-w-xs">
           <Button
             size="lg"
-            className="font-body text-sm sm:text-base bg-white/20 hover:bg-white/30 backdrop-blur-sm text-white rounded-lg border border-white/40 shadow-lg transition-all hover:shadow-xl focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black/50 w-full py-2.5 sm:py-3"
+            className="font-body w-full rounded-lg border border-white/40 bg-white/20 py-2.5 text-sm text-white shadow-lg backdrop-blur-sm transition-all hover:bg-white/30 hover:shadow-xl focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black/50 sm:py-3 sm:text-base"
             onClick={handleScrollToDetails}
             aria-label="Buka Undangan dan lihat detail pernikahan"
           >
             <Mail className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
             Buka Undangan
           </Button>
-          <p className="font-body text-[10px] sm:text-xs italic text-white/70 mt-2 sm:mt-3">
+          <p className="mt-2 font-body text-[10px] italic text-white/70 sm:mt-3 sm:text-xs">
             *Mohon maaf apabila ada kesalahan penulisan nama/gelar
           </p>
         </div>
