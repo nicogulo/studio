@@ -24,7 +24,7 @@ export interface RsvpFormState {
   };
 }
 
-const coupleIdentifier = "nico-trio"; 
+const coupleIdentifier = "nico-trio";
 
 const firebaseConfigForLogging = {
   apiKey: "AIzaSyBChVpmxy_g1JfuZrd3NgwJmcieizdiUuM",
@@ -58,7 +58,7 @@ export async function handleRsvpSubmit(
 
   try {
     const rsvpCollectionRef = collection(firestore, "global", "reservation", coupleIdentifier);
-    
+
     await addDoc(rsvpCollectionRef, {
       ...validatedFields.data,
       submittedAt: serverTimestamp(),
@@ -75,7 +75,7 @@ export async function handleRsvpSubmit(
       console.error("Firestore Error Message (full):", error.message);
     }
     specificMessage += ` Ensure Firebase project '${firebaseConfigForLogging.projectId}' is set up, Firestore is enabled, and security rules allow writing to 'global/reservation/${coupleIdentifier}'. Verify your API key and other Firebase config values in src/lib/firebase.ts.`;
-    
+
     return {
       success: false,
       message: specificMessage,
@@ -89,14 +89,20 @@ export interface FormattedSubmittedRsvpData {
   fullName: string;
   attending: "yes" | "no";
   message?: string;
-  submittedAtFormatted: string; 
+  submittedAtFormatted: string;
+}
+
+// Interface for the serializable timestamp components
+interface SerializableTimestamp {
+  seconds: number;
+  nanoseconds: number;
 }
 
 export interface FetchRsvpsResult {
   success: boolean;
   rsvps?: FormattedSubmittedRsvpData[];
   error?: string;
-  lastDocTimestampForPagination?: Timestamp | null; 
+  lastDocTimestampForPagination?: SerializableTimestamp | null; // Changed type
   hasMore: boolean;
 }
 
@@ -106,26 +112,27 @@ export async function fetchRsvps(
 ): Promise<FetchRsvpsResult> {
   try {
     const rsvpCollectionRef = collection(firestore, "global", "reservation", coupleIdentifier);
-    
+
     const queryConstraints = [
-        orderBy("submittedAt", "desc"), 
+        orderBy("submittedAt", "desc"),
         limit(limitNum + 1) // Fetch one extra to check if there's more
     ];
 
     let q;
     if (lastKnownDocTimestamp) {
+      // The 'lastKnownDocTimestamp' received from the client is already a Timestamp object
       q = query(rsvpCollectionRef, ...queryConstraints, startAfter(lastKnownDocTimestamp));
     } else {
       q = query(rsvpCollectionRef, ...queryConstraints);
     }
-    
+
     const querySnapshot = await getDocs(q);
     const docs = querySnapshot.docs;
 
     const hasMore = docs.length > limitNum;
-    const rsvpsToReturn = docs.slice(0, limitNum);
+    const rsvpsToReturnDocs = docs.slice(0, limitNum);
 
-    const rsvps: FormattedSubmittedRsvpData[] = rsvpsToReturn.map((doc: QueryDocumentSnapshot<DocumentData>) => {
+    const rsvps: FormattedSubmittedRsvpData[] = rsvpsToReturnDocs.map((doc: QueryDocumentSnapshot<DocumentData>) => {
       const data = doc.data();
       const submittedAtTimestamp = data.submittedAt as Timestamp | null;
       return {
@@ -136,16 +143,20 @@ export async function fetchRsvps(
         submittedAtFormatted: submittedAtTimestamp ? format(submittedAtTimestamp.toDate(), "MMMM d, yyyy 'at' h:mm a") : "Date not available",
       };
     });
-    
-    const newLastDocTimestampForPagination = rsvpsToReturn.length > 0 
-      ? rsvpsToReturn[rsvpsToReturn.length - 1].data().submittedAt as Timestamp
+
+    const lastReturnedDocFirestoreTimestamp = rsvpsToReturnDocs.length > 0
+      ? rsvpsToReturnDocs[rsvpsToReturnDocs.length - 1].data().submittedAt as Timestamp
       : null;
-    
-    return { 
-      success: true, 
-      rsvps, 
-      lastDocTimestampForPagination: newLastDocTimestampForPagination, 
-      hasMore 
+
+    const serializableTimestampForPagination = lastReturnedDocFirestoreTimestamp
+      ? { seconds: lastReturnedDocFirestoreTimestamp.seconds, nanoseconds: lastReturnedDocFirestoreTimestamp.nanoseconds }
+      : null;
+
+    return {
+      success: true,
+      rsvps,
+      lastDocTimestampForPagination: serializableTimestampForPagination,
+      hasMore
     };
   } catch (error: any) {
     console.error("Error fetching RSVPs from Firestore:", error);
@@ -167,15 +178,15 @@ export interface AttireSuggestion {
   id: string;
   name: string;
   description: string;
-  imageUrl?: string; 
-  storeUrl?: string; 
-  dataAiHint?: string; 
+  imageUrl?: string;
+  storeUrl?: string;
+  dataAiHint?: string;
 }
 
 async function generateAttireIdeasFromAI(query: string): Promise<AttireSuggestion[]> {
   console.log(`AI Attire Query (mock): ${query}`);
-  await new Promise(resolve => setTimeout(resolve, 1500)); 
-  
+  await new Promise(resolve => setTimeout(resolve, 1500));
+
   if (query.toLowerCase().includes("error")) {
     throw new Error("Simulated AI error for attire suggestions.");
   }
@@ -211,7 +222,7 @@ export async function fetchAttireSuggestions(
 
   try {
     const suggestions = await generateAttireIdeasFromAI(query);
-    
+
     if (suggestions.length === 0) {
       return { success: true, query, message: "No specific suggestions found for your query, but think elegant and celebratory!" };
     }

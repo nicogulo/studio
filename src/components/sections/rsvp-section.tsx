@@ -3,7 +3,7 @@
 
 import { useEffect, useState, useActionState, startTransition, useRef, useCallback } from "react";
 import { useFormStatus } from "react-dom";
-import type { Timestamp } from "firebase/firestore";
+import { Timestamp } from "firebase/firestore"; // Import Timestamp
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { handleRsvpSubmit, RsvpFormState, fetchRsvps, FormattedSubmittedRsvpData, FetchRsvpsResult } from "@/app/actions";
+import { handleRsvpSubmit, RsvpFormState, fetchRsvps, FormattedSubmittedRsvpData } from "@/app/actions";
 import { motion } from "framer-motion";
 import { Send, Loader2, ListChecks, Info, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 
@@ -43,7 +43,7 @@ const RsvpSection: React.FC = () => {
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
   const [fetchError, setFetchError] = useState<string | null>(null);
-  
+
   const sentinelRef = useRef<HTMLDivElement>(null);
 
   const loadRsvps = useCallback(async (isLoadMore = false) => {
@@ -52,17 +52,24 @@ const RsvpSection: React.FC = () => {
       setIsLoadingMore(true);
     } else {
       setIsLoadingInitial(true);
-      setRsvps([]); 
+      setRsvps([]);
       setLastFetchedDocTimestamp(null);
-      setHasMoreRsvps(true); 
+      setHasMoreRsvps(true);
     }
     setFetchError(null);
-    
+
     try {
+      // Pass the Timestamp object directly to the server action
       const result = await fetchRsvps(isLoadMore ? lastFetchedDocTimestamp : null, PAGE_SIZE);
       if (result.success && result.rsvps) {
         setRsvps(prevRsvps => isLoadMore ? [...prevRsvps, ...result.rsvps!] : result.rsvps!);
-        setLastFetchedDocTimestamp(result.lastDocTimestampForPagination || null);
+        // Reconstruct Timestamp from serializable object received from server action
+        if (result.lastDocTimestampForPagination) {
+            const { seconds, nanoseconds } = result.lastDocTimestampForPagination;
+            setLastFetchedDocTimestamp(new Timestamp(seconds, nanoseconds));
+        } else {
+            setLastFetchedDocTimestamp(null);
+        }
         setHasMoreRsvps(result.hasMore);
       } else {
         setFetchError(result.error || "Failed to load RSVPs.");
@@ -128,7 +135,7 @@ const RsvpSection: React.FC = () => {
           });
         }
       },
-      { threshold: 0.1 } 
+      { threshold: 0.1 }
     );
 
     observer.observe(currentSentinel);
@@ -136,7 +143,7 @@ const RsvpSection: React.FC = () => {
       observer.unobserve(currentSentinel);
     };
   }, [hasMoreRsvps, isLoadingMore, isLoadingInitial, loadRsvps]);
-  
+
   return (
     <section id="rsvp" className="py-16 bg-secondary/20">
       <div className="px-4">
@@ -243,7 +250,7 @@ const RsvpSection: React.FC = () => {
               <p className="text-center text-muted-foreground font-body">No RSVPs submitted yet. Be the first!</p>
             </Card>
           )}
-          
+
           {rsvps.length > 0 && (
             <div className="space-y-4">
               {rsvps.map((rsvp) => (
@@ -271,7 +278,7 @@ const RsvpSection: React.FC = () => {
             </div>
           )}
 
-          <div ref={sentinelRef} className="h-10" /> 
+          <div ref={sentinelRef} className="h-10" />
 
           {isLoadingMore && (
             <div className="flex justify-center items-center py-4">
