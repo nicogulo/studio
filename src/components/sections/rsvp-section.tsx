@@ -12,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { handleRsvpSubmit, RsvpFormState, fetchRsvps, FormattedSubmittedRsvpData } from "@/app/actions";
+import { handleRsvpSubmit, RsvpFormState, fetchRsvps, FormattedSubmittedRsvpData, FetchRsvpsResult } from "@/app/actions";
 import { motion } from "framer-motion";
 import { Send, Loader2, ListChecks, Info, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 
@@ -23,11 +23,14 @@ const initialRsvpFormState: RsvpFormState = {
 
 const PAGE_SIZE = 5;
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+interface SubmitButtonProps {
+  isPending: boolean;
+}
+
+function SubmitButton({ isPending }: SubmitButtonProps) {
   return (
-    <Button type="submit" disabled={pending} className="w-full bg-primary hover:bg-primary/80 text-primary-foreground rounded-full border border-primary-foreground/20 shadow-sm hover:shadow-md transition-all text-sm">
-      {pending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
+    <Button type="submit" disabled={isPending} className="w-full bg-primary hover:bg-primary/80 text-primary-foreground rounded-full border border-primary-foreground/20 shadow-sm hover:shadow-md transition-all text-sm">
+      {isPending ? <Loader2 className="mr-2 h-4 w-4 animate-spin" /> : <Send className="mr-2 h-4 w-4" />}
       Send RSVP
     </Button>
   );
@@ -52,23 +55,21 @@ const RsvpSection: React.FC = () => {
       setIsLoadingMore(true);
     } else {
       setIsLoadingInitial(true);
-      setRsvps([]);
-      setLastFetchedDocTimestamp(null);
-      setHasMoreRsvps(true);
+      setRsvps([]); // Clear previous RSVPs on refresh/initial load
+      setLastFetchedDocTimestamp(null); // Reset pagination cursor
+      setHasMoreRsvps(true); // Assume there might be more
     }
     setFetchError(null);
 
     try {
-      // Pass the Timestamp object directly to the server action
-      const result = await fetchRsvps(isLoadMore ? lastFetchedDocTimestamp : null, PAGE_SIZE);
+      const result: FetchRsvpsResult = await fetchRsvps(isLoadMore ? lastFetchedDocTimestamp : null, PAGE_SIZE);
       if (result.success && result.rsvps) {
         setRsvps(prevRsvps => isLoadMore ? [...prevRsvps, ...result.rsvps!] : result.rsvps!);
-        // Reconstruct Timestamp from serializable object received from server action
         if (result.lastDocTimestampForPagination) {
             const { seconds, nanoseconds } = result.lastDocTimestampForPagination;
             setLastFetchedDocTimestamp(new Timestamp(seconds, nanoseconds));
         } else {
-            setLastFetchedDocTimestamp(null);
+            setLastFetchedDocTimestamp(null); // No more docs, or an error occurred
         }
         setHasMoreRsvps(result.hasMore);
       } else {
@@ -101,7 +102,8 @@ const RsvpSection: React.FC = () => {
     startTransition(() => {
       loadRsvps(false); // Initial load
     });
-  }, [loadRsvps]);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Run once on mount
 
 
   useEffect(() => {
@@ -140,7 +142,9 @@ const RsvpSection: React.FC = () => {
 
     observer.observe(currentSentinel);
     return () => {
-      observer.unobserve(currentSentinel);
+      if (currentSentinel) {
+        observer.unobserve(currentSentinel);
+      }
     };
   }, [hasMoreRsvps, isLoadingMore, isLoadingInitial, loadRsvps]);
 
@@ -201,7 +205,7 @@ const RsvpSection: React.FC = () => {
                 {formState.errors?._form && <p className="text-xs text-destructive font-body pt-1">{formState.errors._form.join(", ")}</p>}
               </CardContent>
               <CardFooter className="pb-6">
-                <SubmitButton />
+                <SubmitButton isPending={isFormPending} />
               </CardFooter>
             </form>
           </Card>
@@ -278,7 +282,7 @@ const RsvpSection: React.FC = () => {
             </div>
           )}
 
-          <div ref={sentinelRef} className="h-10" />
+          <div ref={sentinelRef} className="h-10" /> {/* Sentinel for IntersectionObserver */}
 
           {isLoadingMore && (
             <div className="flex justify-center items-center py-4">
@@ -299,3 +303,6 @@ const RsvpSection: React.FC = () => {
 };
 
 export default RsvpSection;
+
+
+    
