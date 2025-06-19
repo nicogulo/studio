@@ -40,7 +40,7 @@ const CountdownTimerSection: React.FC = () => {
 
     return () => clearInterval(timer);
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // weddingDate is constant, no need to include in deps for this case
+  }, []); // weddingDate is constant
 
   const loadingState = (
     <section className="py-16 bg-secondary/20 text-center">
@@ -100,20 +100,39 @@ const CountdownTimerSection: React.FC = () => {
         </motion.p>
         <div className="grid grid-cols-2 gap-3 sm:flex sm:flex-wrap sm:justify-center sm:gap-4">
           {timeUnits.map((unit, index) => (
-            <motion.div
+            <motion.div // Outer div for initial reveal
               key={unit.label}
-              initial={{ opacity: 0, scale: 0.9, y: 10 }}
-              whileInView={{ opacity: 1, scale: 1, y: 0 }}
+              initial={{ opacity: 0, y: 20, scale: 0.95 }}
+              whileInView={{ opacity: 1, y: 0, scale: 1 }}
               viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.4, delay: 0.2 + index * 0.05, ease: "easeOut" }}
-              className="p-3 bg-background/90 rounded-xl shadow-lg w-full sm:w-24 h-24 flex flex-col justify-center items-center"
+              transition={{ duration: 0.4, delay: 0.2 + index * 0.07, ease: "easeOut" }}
+              // Base shadow can be applied here, or rely purely on animated shadow
+              className="bg-background/90 rounded-xl w-full sm:w-24 h-24 flex flex-col justify-center items-center overflow-hidden"
             >
-              <span className="font-headline text-2xl sm:text-3xl text-primary">
-                {unit.value < 10 ? `0${unit.value}` : unit.value}
-              </span>
-              <span className="font-body text-xs sm:text-sm text-muted-foreground uppercase mt-1">
-                {unit.label}
-              </span>
+              <motion.div // Inner div for continuous glow and subtle pulse
+                animate={{
+                  scale: [1, 1.015, 1], // Subtle scale pulse
+                  boxShadow: [ // Glow effect using primary color (HSL 8, 48%, 80%)
+                    "inset 0 0 0px hsla(8, 48%, 80%, 0.0)",
+                    "inset 0 0 12px hsla(8, 48%, 80%, 0.6)",
+                    "inset 0 0 0px hsla(8, 48%, 80%, 0.0)",
+                  ]
+                }}
+                transition={{
+                  repeat: Infinity,
+                  duration: 2.5, 
+                  ease: "easeInOut",
+                  delay: index * 0.25 // Stagger the start of the loops
+                }}
+                className="w-full h-full flex flex-col justify-center items-center p-3 rounded-xl" 
+              >
+                <span className="font-headline text-2xl sm:text-3xl text-primary">
+                  {unit.value < 10 ? `0${unit.value}` : unit.value}
+                </span>
+                <span className="font-body text-xs sm:text-sm text-muted-foreground uppercase mt-1">
+                  {unit.label}
+                </span>
+              </motion.div>
             </motion.div>
           ))}
         </div>
