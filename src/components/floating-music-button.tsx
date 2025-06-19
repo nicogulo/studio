@@ -65,7 +65,7 @@ const FloatingMusicButton: FC<FloatingMusicButtonProps> = ({
               max={100}
               step={1}
               orientation="vertical"
-              className="h-32" // Explicit height for the vertical slider track area
+              className="h-32" 
               onValueChange={(value) => onVolumeChange(value[0] / 100)}
               aria-label="Volume control"
             />
@@ -77,4 +77,3 @@ const FloatingMusicButton: FC<FloatingMusicButtonProps> = ({
 };
 
 export default FloatingMusicButton;
-
