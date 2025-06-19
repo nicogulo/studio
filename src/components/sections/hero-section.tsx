@@ -13,11 +13,21 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onUnlockScrollAndNavigate }) 
   
   const handleCTAInteraction = () => {
     onUnlockScrollAndNavigate();
+
+    // Scroll to the Thanksgiving section
+    requestAnimationFrame(() => { 
+      setTimeout(() => {
+        const targetSection = document.getElementById("thanksgiving");
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+      }, 100); 
+    });
   };
 
   return (
     <section
-      id="hero" // id "hero" might be useful for other purposes, kept for now
+      id="hero"
       className="relative flex flex-col items-center justify-center min-h-screen text-center text-white"
     >
       <Image
@@ -47,7 +57,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onUnlockScrollAndNavigate }) 
             Nico & Trio
           </h1>
           <p className="font-body text-sm text-white/80 sm:text-base">
-            Tuesday, 02 November 2027
+            Tuesday, November 02, 2027
           </p>
         </div>
         
@@ -57,13 +67,13 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onUnlockScrollAndNavigate }) 
             size="lg"
             className="font-body w-full rounded-lg border border-white/40 bg-white/20 py-2.5 text-sm text-white shadow-lg backdrop-blur-sm transition-all hover:bg-white/30 hover:shadow-xl focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black/50 sm:py-3 sm:text-base"
             onClick={handleCTAInteraction}
-            aria-label="Buka Undangan dan lihat detail pernikahan"
+            aria-label="Open Invitation and see wedding details"
           >
             <Mail className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
-            Buka Undangan
+            Open Invitation
           </Button>
           <p className="mt-2 font-body text-[10px] italic text-white/70 sm:mt-3 sm:text-xs">
-            *Mohon maaf apabila ada kesalahan penulisan nama/gelar
+            *Please excuse any errors in names or titles.
           </p>
         </div>
       </motion.div>

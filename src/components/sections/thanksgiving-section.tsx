@@ -15,7 +15,7 @@ const ThanksgivingSection: React.FC = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
           className="font-headline text-3xl text-primary-foreground mb-6"
         >
-          Puji Syukur
+          With Gratitude
         </motion.h2>
         <motion.p
           initial={{ opacity: 0, y: 20 }}
@@ -24,14 +24,14 @@ const ThanksgivingSection: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
           className="font-body text-base text-foreground max-w-xl mx-auto leading-relaxed"
         >
-          Dengan penuh rasa syukur kehadirat Tuhan Yang Maha Esa, kami memohon doa restu 
-          Bapak/Ibu/Saudara/i sekalian agar pernikahan kami, yang diselenggarakan pada:
+          With heartfelt gratitude to God Almighty, we humbly request your prayers and blessings 
+          for our wedding, which will be held on:
           <br /><br />
-          <strong>Selasa, 02 November 2027</strong>
+          <strong>Tuesday, November 02, 2027</strong>
           <br /><br />
-          Dapat berjalan lancar sesuai harapan kami dan menjadi awal perjalanan keluarga
-          yang sakinah, mawaddah, warahmah. Kehadiran dan doa restu Anda adalah
-          anugerah terindah bagi kami.
+          We pray that our union proceeds smoothly and marks the beginning of a family life 
+          filled with peace, love, and mercy. Your presence and blessings 
+          are the most precious gift to us.
         </motion.p>
       </div>
     </section>
