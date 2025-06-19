@@ -1,30 +1,45 @@
 
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
-// import { getAnalytics } from "firebase/analytics"; // Analytics not used if not explicitly needed
+import { firebaseConfigValues } from '@/config/appConfig'; // Import from new config file
 
-// Your web app's Firebase configuration
-// For Firebase JS SDK v7.20.0 and later, measurementId is optional
-const firebaseConfig = {
-  apiKey: "AIzaSyBChVpmxy_g1JfuZrd3NgwJmcieizdiUuM",
-  authDomain: "nico-trio.firebaseapp.com",
-  projectId: "nico-trio",
-  storageBucket: "nico-trio.appspot.com", // Standard format, verify if customized
-  messagingSenderId: "142120789424",
-  appId: "1:142120789424:web:df492227d377923f122275",
-  measurementId: "G-JBZ5XYC2T7"
-};
+let app: FirebaseApp | undefined = undefined;
+let firestore: Firestore | undefined = undefined;
 
-let app: FirebaseApp;
-if (!getApps().length) {
-  app = initializeApp(firebaseConfig);
+const {
+  apiKey,
+  authDomain,
+  projectId,
+  storageBucket,
+  messagingSenderId,
+  appId,
+  measurementId
+} = firebaseConfigValues;
+
+// Only attempt to initialize Firebase if essential config values are present
+if (apiKey && authDomain && projectId) {
+  if (!getApps().length) {
+    app = initializeApp({
+      apiKey,
+      authDomain,
+      projectId,
+      storageBucket,
+      messagingSenderId,
+      appId,
+      measurementId
+    });
+  } else {
+    app = getApps()[0];
+  }
+  firestore = getFirestore(app);
 } else {
-  app = getApps()[0];
+  // Log an error or warning, as Firebase-dependent features will not work
+  console.error(
+    "Firebase SDK not initialized due to missing configuration. " +
+    "Please ensure NEXT_PUBLIC_FIREBASE_API_KEY, NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN, " +
+    "and NEXT_PUBLIC_FIREBASE_PROJECT_ID are set in your environment variables."
+  );
+  // app and firestore will remain undefined
 }
-
-const firestore: Firestore = getFirestore(app);
-
-// If you decide to use analytics:
-// const analytics = getAnalytics(app);
 
 export { app, firestore };
