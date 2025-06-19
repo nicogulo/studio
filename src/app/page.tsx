@@ -25,15 +25,23 @@ export default function HomePage() {
   const [isScrollLocked, setIsScrollLocked] = useState(true);
   const [isPlayingMusic, setIsPlayingMusic] = useState(false);
   const [isMusicPlayerVisible, setIsMusicPlayerVisible] = useState(false);
+  const [volume, setVolume] = useState(0.5); // Volume range: 0.0 to 1.0
   const audioRef = useRef<HTMLAudioElement | null>(null);
 
   useEffect(() => {
-    // Initialize audio element ref once component is mounted
     if (typeof window !== "undefined") {
         audioRef.current = new Audio(MUSIC_URL);
-        audioRef.current.loop = true; // Optional: loop the music
+        audioRef.current.loop = true;
+        audioRef.current.volume = volume; 
     }
-  }, []);
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []); // Only run once on mount
+
+  useEffect(() => {
+    if (audioRef.current) {
+      audioRef.current.volume = volume;
+    }
+  }, [volume]);
 
   const playMusic = () => {
     if (audioRef.current) {
@@ -59,9 +67,12 @@ export default function HomePage() {
     }
   };
 
+  const handleVolumeChange = (newVolume: number) => {
+    setVolume(newVolume);
+  };
+
   const handleUnlockScrollAndNavigate = () => {
     setIsScrollLocked(false);
-    // Play music when invitation is opened
     playMusic();
 
     requestAnimationFrame(() => {
@@ -116,6 +127,8 @@ export default function HomePage() {
           <FloatingMusicButton
             isPlaying={isPlayingMusic}
             onTogglePlay={toggleMusic}
+            volume={volume}
+            onVolumeChange={handleVolumeChange}
           />
         )}
       </main>
