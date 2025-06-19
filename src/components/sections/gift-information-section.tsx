@@ -125,10 +125,16 @@ const GiftInformationSection: React.FC = () => {
             className="flex"
           >
             <Card className="w-full shadow-xl hover:shadow-2xl transition-shadow duration-300 bg-card rounded-xl overflow-hidden flex flex-col border border-accent/20">
-              <CardHeader className="p-6 text-center border-b border-accent/10">
-                 <CardTitle className="font-headline text-3xl text-accent-foreground">
+              <CardHeader className="bg-primary/5 p-6 text-center">
+                <div className="mx-auto p-4 bg-primary/10 rounded-full w-fit mb-3 ring-2 ring-primary/20">
+                  <GiftIcon className="w-8 h-8 text-primary" />
+                </div>
+                <CardTitle className="font-headline text-2xl text-primary-foreground">
                   Wedding Gift
                 </CardTitle>
+                <CardDescription className="font-body text-sm text-muted-foreground mt-1">
+                  For monetary contributions to our new life together.
+                </CardDescription>
               </CardHeader>
               <CardContent className="p-6 text-center flex-grow flex flex-col">
                 <p className="font-body text-base text-foreground mb-6 leading-relaxed">
