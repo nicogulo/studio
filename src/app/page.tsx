@@ -15,9 +15,9 @@ import FooterSection from "@/components/sections/footer-section";
 import FloralDivider from "@/components/floral-divider";
 import FloatingMusicButton from '@/components/floating-music-button';
 
-// IMPORTANT: Replace this URL with your chosen royalty-free romantic music track.
-// For example, you might look for a song by Gummy like "You Are My Everything" or another romantic piece.
-const MUSIC_URL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"; // Placeholder - Replace with actual Gummy song URL or other choice
+// IMPORTANT: Replace this URL with a direct link to your chosen royalty-free romantic music track (e.g., an MP3 file).
+// Direct YouTube page links (like watch?v=...) will NOT work here. You need a URL pointing to the audio file itself.
+const MUSIC_URL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-4.mp3"; // Placeholder - Replace with actual audio file URL
 
 export default function HomePage() {
   const [isScrollLocked, setIsScrollLocked] = useState(true);
