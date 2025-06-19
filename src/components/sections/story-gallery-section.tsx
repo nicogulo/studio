@@ -33,13 +33,13 @@ const galleryItems = [
     hint: "happy couple"
   },
   {
-    src: "https://images.unsplash.com/photo-1655490162630-175929877280?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb3VwbGUlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3NTAyNjc2Nzl8MA&ixlib=rb-4.1.0&q=80&w=1080",
+    src: "https://images.unsplash.com/photo-1655490162630-175929877280?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb3VwbGUlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3NTAyNjc2Nzl8MA&ixlibrb-4.1.0&q=80&w=1080",
     alt: "Celebrating an anniversary together",
     caption: "Milestones",
     hint: "couple celebration"
   },
   {
-    src: "https://images.unsplash.com/photo-1645563838122-cbc43ec4e81f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb3VwbGUlMjBmdXR1cmV8ZW58MHx8fHwxNzUwMjY3Njc5fDA&ixlib=rb-4.1.0&q=80&w=1080",
+    src: "https://images.unsplash.com/photo-1645563838122-cbc43ec4e81f?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb3VwbGUlMjBmdXR1cmV8ZW58MHx8fHwxNzUwMjY3Njc5fDA&ixlib.rb-4.1.0&q=80&w=1080",
     alt: "Looking towards the future, happy together",
     caption: "Our Journey Together",
     hint: "couple future"
@@ -74,7 +74,6 @@ const StoryGallerySection: React.FC = () => {
         </motion.h2>
 
         <div className="relative">
-          {/* Central Timeline Line for desktop */}
           <div
             className="absolute top-0 bottom-0 left-1/2 w-0.5 -translate-x-1/2 bg-primary/20 hidden sm:block"
             aria-hidden="true"
@@ -90,7 +89,6 @@ const StoryGallerySection: React.FC = () => {
               className="mb-12 sm:mb-16" 
             >
               <div className={`flex flex-col sm:items-stretch ${index % 2 !== 0 ? 'sm:flex-row-reverse' : 'sm:flex-row'}`}>
-                {/* Image Card Wrapper */}
                 <div className="w-full sm:w-5/12 flex">
                   <Card
                     className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card rounded-lg w-full flex flex-col cursor-pointer group"
@@ -115,13 +113,31 @@ const StoryGallerySection: React.FC = () => {
                   </Card>
                 </div>
 
-                {/* Spacer & Timeline Dot (for desktop) */}
                 <div className={`hidden sm:flex sm:w-2/12 relative items-center justify-center`}>
                   <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 bg-primary rounded-full ring-4 ring-background shadow-md z-10"></div>
                 </div>
-
-                {/* Empty spacer for the other side on desktop */}
-                <div className="hidden sm:block sm:w-5/12"></div>
+                
+                <div className="hidden sm:flex sm:w-5/12 items-center justify-center p-4 md:p-6 lg:p-8">
+                  <motion.div
+                    initial={{ opacity: 0, y: 20, scale: 0.9 }}
+                    whileInView={{ opacity: 1, y: 0, scale: 1 }}
+                    viewport={{ once: true, amount: 0.3 }}
+                    transition={{ duration: 0.5, delay: 0.15 }}
+                  >
+                    <svg
+                      viewBox="0 0 50 100"
+                      className={`w-16 h-32 md:w-20 md:h-40 lg:w-24 lg:h-48 fill-current text-primary/20 ${
+                        // More varied transformations
+                        index % 4 === 0 ? 'transform -rotate-[12deg]' :
+                        index % 4 === 1 ? 'transform rotate-[12deg] scale-x-[-1]' :
+                        index % 4 === 2 ? 'transform rotate-[8deg]' :
+                                          'transform -rotate-[8deg] scale-x-[-1]'
+                      }`}
+                    >
+                      <path d="M25 0 C25 0 10 20 10 50 C10 80 25 100 25 100 C25 100 40 80 40 50 C40 20 25 0 25 0 Z M25 10 C30 25 30 75 25 90 C20 75 20 25 25 10 Z" />
+                    </svg>
+                  </motion.div>
+                </div>
               </div>
             </motion.div>
           ))}
