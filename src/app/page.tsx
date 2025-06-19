@@ -5,6 +5,7 @@ import { useState } from 'react';
 import HeroSection from "@/components/sections/hero-section";
 import ThanksgivingSection from "@/components/sections/thanksgiving-section";
 import StoryGallerySection from "@/components/sections/story-gallery-section";
+import PhotoGallerySection from "@/components/sections/photo-gallery-section"; // New import
 import CountdownTimerSection from "@/components/sections/countdown-timer-section";
 import WeddingDetailsSection from "@/components/sections/wedding-details-section";
 import AttireSuggestionsSection from "@/components/sections/attire-suggestions-section";
@@ -20,9 +21,9 @@ export default function HomePage() {
 
     requestAnimationFrame(() => {
       setTimeout(() => {
-        const detailsSection = document.getElementById("wedding-details");
-        if (detailsSection) {
-          detailsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        const targetSection = document.getElementById("thanksgiving"); // Updated target
+        if (targetSection) {
+          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
       }, 100); 
     });
@@ -39,7 +40,7 @@ export default function HomePage() {
         className={`
           relative w-full max-w-[28.125rem] bg-background shadow-2xl 
           transition-all duration-300 ease-in-out
-          ${isScrollLocked ? 'h-full overflow-y-hidden' : 'h-auto'} 
+          ${isScrollLocked ? 'h-full' : 'h-auto'} 
         `}
         style={{ WebkitOverflowScrolling: 'touch' }} 
       >
@@ -49,6 +50,8 @@ export default function HomePage() {
             <ThanksgivingSection />
             <FloralDivider />
             <StoryGallerySection />
+            <FloralDivider /> 
+            <PhotoGallerySection /> 
             <FloralDivider />
             <CountdownTimerSection />
             <FloralDivider />
