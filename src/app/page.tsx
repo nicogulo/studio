@@ -5,10 +5,11 @@ import { useState } from 'react';
 import HeroSection from "@/components/sections/hero-section";
 import ThanksgivingSection from "@/components/sections/thanksgiving-section";
 import StoryGallerySection from "@/components/sections/story-gallery-section";
-import PhotoGallerySection from "@/components/sections/photo-gallery-section"; // New import
+import PhotoGallerySection from "@/components/sections/photo-gallery-section";
 import CountdownTimerSection from "@/components/sections/countdown-timer-section";
 import WeddingDetailsSection from "@/components/sections/wedding-details-section";
 import AttireSuggestionsSection from "@/components/sections/attire-suggestions-section";
+import GiftInformationSection from "@/components/sections/gift-information-section"; // New import
 import RsvpSection from "@/components/sections/rsvp-section";
 import FooterSection from "@/components/sections/footer-section";
 import FloralDivider from "@/components/floral-divider";
@@ -21,7 +22,7 @@ export default function HomePage() {
 
     requestAnimationFrame(() => {
       setTimeout(() => {
-        const targetSection = document.getElementById("thanksgiving"); // Updated target
+        const targetSection = document.getElementById("thanksgiving");
         if (targetSection) {
           targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
@@ -58,6 +59,8 @@ export default function HomePage() {
             <WeddingDetailsSection />
             <FloralDivider />
             <AttireSuggestionsSection />
+            <FloralDivider />
+            <GiftInformationSection /> 
             <FloralDivider />
             <RsvpSection />
             <FooterSection />
