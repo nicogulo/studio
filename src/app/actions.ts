@@ -2,7 +2,7 @@
 "use server";
 
 import { firestore } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, Timestamp, limit, startAfter, DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, Timestamp, limit, startAfter, DocumentData, QueryDocumentSnapshot, QueryConstraint } from "firebase/firestore";
 import { z } from "zod";
 import { format } from 'date-fns';
 
@@ -93,7 +93,7 @@ export interface FormattedSubmittedRsvpData {
 }
 
 // Interface for the serializable timestamp components
-interface SerializableTimestamp {
+export interface SerializableTimestamp {
   seconds: number;
   nanoseconds: number;
 }
@@ -102,35 +102,50 @@ export interface FetchRsvpsResult {
   success: boolean;
   rsvps?: FormattedSubmittedRsvpData[];
   error?: string;
-  lastDocTimestampForPagination?: SerializableTimestamp | null; // Changed type
+  lastDocTimestampForPagination?: SerializableTimestamp | null;
   hasMore: boolean;
 }
 
+const RSVP_PAGE_SIZE = 5;
+
 export async function fetchRsvps(
-  lastKnownDocTimestamp: Timestamp | null = null,
-  limitNum: number = 5
+  lastKnownDocTimestampForPaginationInput: SerializableTimestamp | null = null,
+  limitNum: number = RSVP_PAGE_SIZE
 ): Promise<FetchRsvpsResult> {
+  console.log("--- fetchRsvps called ---");
+  console.log("Input cursor (from client):", lastKnownDocTimestampForPaginationInput);
+  console.log("Limit number:", limitNum);
+
   try {
     const rsvpCollectionRef = collection(firestore, "global", "reservation", coupleIdentifier);
 
-    const queryConstraints = [
+    const queryConstraints: QueryConstraint[] = [
         orderBy("submittedAt", "desc"),
         limit(limitNum + 1) // Fetch one extra to check if there's more
     ];
 
     let q;
+    // Reconstruct Timestamp on the server side if input is provided
+    const lastKnownDocTimestamp = lastKnownDocTimestampForPaginationInput
+        ? new Timestamp(lastKnownDocTimestampForPaginationInput.seconds, lastKnownDocTimestampForPaginationInput.nanoseconds)
+        : null;
+
     if (lastKnownDocTimestamp) {
-      // The 'lastKnownDocTimestamp' received from the client is already a Timestamp object
+      console.log("Querying with startAfter, reconstructed timestamp:", lastKnownDocTimestamp.toDate());
       q = query(rsvpCollectionRef, ...queryConstraints, startAfter(lastKnownDocTimestamp));
     } else {
+      console.log("Querying initial set (no startAfter cursor)");
       q = query(rsvpCollectionRef, ...queryConstraints);
     }
 
     const querySnapshot = await getDocs(q);
     const docs = querySnapshot.docs;
+    console.log(`Fetched ${docs.length} documents from Firestore.`);
 
     const hasMore = docs.length > limitNum;
     const rsvpsToReturnDocs = docs.slice(0, limitNum);
+    console.log(`Returning ${rsvpsToReturnDocs.length} documents to client. Has more: ${hasMore}`);
+
 
     const rsvps: FormattedSubmittedRsvpData[] = rsvpsToReturnDocs.map((doc: QueryDocumentSnapshot<DocumentData>) => {
       const data = doc.data();
@@ -144,10 +159,17 @@ export async function fetchRsvps(
       };
     });
 
-    const lastReturnedDocFirestoreTimestamp = rsvpsToReturnDocs.length > 0
-      ? rsvpsToReturnDocs[rsvpsToReturnDocs.length - 1].data().submittedAt as Timestamp
-      : null;
+    const lastReturnedDocData = rsvpsToReturnDocs.length > 0 ? rsvpsToReturnDocs[rsvpsToReturnDocs.length - 1].data() : null;
+    const lastReturnedDocFirestoreTimestamp = lastReturnedDocData ? lastReturnedDocData.submittedAt as Timestamp : null;
 
+    if (rsvpsToReturnDocs.length > 0 && lastReturnedDocFirestoreTimestamp) {
+        console.log("Timestamp of the last document in the returned batch for next cursor:", lastReturnedDocFirestoreTimestamp.toDate());
+    } else if (rsvpsToReturnDocs.length > 0) {
+        console.log("Last document in returned batch exists, but its submittedAt is null/missing. This could break pagination.");
+    } else {
+        console.log("No documents in rsvpsToReturnDocs, so no cursor for next page.");
+    }
+    
     const serializableTimestampForPagination = lastReturnedDocFirestoreTimestamp
       ? { seconds: lastReturnedDocFirestoreTimestamp.seconds, nanoseconds: lastReturnedDocFirestoreTimestamp.nanoseconds }
       : null;

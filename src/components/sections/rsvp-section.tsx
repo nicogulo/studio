@@ -2,7 +2,6 @@
 "use client";
 
 import { useEffect, useState, useActionState, startTransition, useRef, useCallback } from "react";
-// import { useFormStatus } from "react-dom"; // No longer needed directly in RsvpSection for submit button
 import { Timestamp } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +11,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { handleRsvpSubmit, RsvpFormState, fetchRsvps, FormattedSubmittedRsvpData, FetchRsvpsResult } from "@/app/actions";
+import { handleRsvpSubmit, RsvpFormState, fetchRsvps, FormattedSubmittedRsvpData, FetchRsvpsResult, SerializableTimestamp } from "@/app/actions";
 import { motion } from "framer-motion";
 import { Send, Loader2, ListChecks, Info, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 
@@ -21,7 +20,7 @@ const initialRsvpFormState: RsvpFormState = {
   message: "",
 };
 
-const PAGE_SIZE = 5;
+const PAGE_SIZE = 5; // Defined for client-side use, matches server default
 
 interface SubmitButtonProps {
   isPending: boolean;
@@ -41,7 +40,7 @@ const RsvpSection: React.FC = () => {
   const { toast } = useToast();
 
   const [rsvps, setRsvps] = useState<FormattedSubmittedRsvpData[]>([]);
-  const [lastFetchedDocTimestamp, setLastFetchedDocTimestamp] = useState<Timestamp | null>(null);
+  const [lastFetchedDocTimestamp, setLastFetchedDocTimestamp] = useState<Timestamp | null>(null); // Store full Timestamp object
   const [hasMoreRsvps, setHasMoreRsvps] = useState(true);
   const [isLoadingInitial, setIsLoadingInitial] = useState(true);
   const [isLoadingMore, setIsLoadingMore] = useState(false);
@@ -55,21 +54,41 @@ const RsvpSection: React.FC = () => {
       setIsLoadingMore(true);
     } else {
       setIsLoadingInitial(true);
-      setRsvps([]);
-      setLastFetchedDocTimestamp(null);
-      setHasMoreRsvps(true);
+      setRsvps([]); // Clear existing RSVPs for a fresh load
+      setLastFetchedDocTimestamp(null); // Reset cursor for a fresh load
+      setHasMoreRsvps(true); // Assume there are more until proven otherwise
     }
     setFetchError(null);
 
+    // Prepare the cursor for the server action (needs to be serializable)
+    let serializableStartAfter: SerializableTimestamp | null = null;
+    if (isLoadMore && lastFetchedDocTimestamp) {
+      serializableStartAfter = {
+        seconds: lastFetchedDocTimestamp.seconds,
+        nanoseconds: lastFetchedDocTimestamp.nanoseconds,
+      };
+    }
+    
+    console.log(`Client: Calling fetchRsvps. isLoadMore: ${isLoadMore}. Cursor to send:`, serializableStartAfter);
+
     try {
-      const result: FetchRsvpsResult = await fetchRsvps(isLoadMore ? lastFetchedDocTimestamp : null, PAGE_SIZE);
+      // Call server action with serializable cursor
+      const result: FetchRsvpsResult = await fetchRsvps(serializableStartAfter, PAGE_SIZE);
+      
+      console.log("Client: Received from fetchRsvps:", result);
+
       if (result.success && result.rsvps) {
         setRsvps(prevRsvps => isLoadMore ? [...prevRsvps, ...result.rsvps!] : result.rsvps!);
+        
         if (result.lastDocTimestampForPagination) {
+            // Server sends serializable, client reconstructs to full Timestamp for its state
             const { seconds, nanoseconds } = result.lastDocTimestampForPagination;
-            setLastFetchedDocTimestamp(new Timestamp(seconds, nanoseconds));
+            const newCursorTimestamp = new Timestamp(seconds, nanoseconds);
+            setLastFetchedDocTimestamp(newCursorTimestamp);
+            console.log("Client: Updated lastFetchedDocTimestamp to:", newCursorTimestamp.toDate());
         } else {
-            setLastFetchedDocTimestamp(null);
+            setLastFetchedDocTimestamp(null); // No more cursor from server
+             console.log("Client: Server returned no next cursor. Setting lastFetchedDocTimestamp to null.");
         }
         setHasMoreRsvps(result.hasMore);
       } else {
@@ -103,33 +122,27 @@ const RsvpSection: React.FC = () => {
       loadRsvps(false); // Initial load
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // loadRsvps is memoized, but initial load should only run once.
+  }, []); 
 
-  // Effect for handling form submission feedback (toasts and data refresh)
   useEffect(() => {
-    if (formState.success) {
-      toast({
-        title: "RSVP Submitted!",
-        description: formState.message,
-        variant: "default",
-      });
-      startTransition(() => {
-        loadRsvps(false); // Refresh the list from the beginning
-      });
-    } else if (formState.message && (formState.errors || formState.message.startsWith("An error occurred"))) {
+    if (formState.message && !formState.success && (formState.errors || formState.message.startsWith("An error occurred"))) {
        toast({
         title: "Oops!",
         description: formState.message,
         variant: "destructive",
       });
+    } else if (formState.success && formState.message) { // Check for message to avoid toast on initial state
+        toast({
+            title: "RSVP Submitted!",
+            description: formState.message,
+            variant: "default", // or success if you have that variant
+        });
+        startTransition(() => {
+            loadRsvps(false); // Refresh the list from the beginning
+        });
     }
-    // This effect should run when `formState` (the object from useActionState) changes,
-    // or when `toast` changes (which is unlikely but good practice to include).
-    // `loadRsvps` is called as a side effect but should not be a dependency causing this effect to re-run
-    // if only `loadRsvps` reference changes due to its own internal state updates.
-    // The primary trigger here is the change in `formState` indicating a new submission result.
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [formState, toast]); // Removed loadRsvps from dependency array to break loop
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formState, toast]);
 
   useEffect(() => {
     const currentSentinel = sentinelRef.current;
@@ -138,6 +151,7 @@ const RsvpSection: React.FC = () => {
     const observer = new IntersectionObserver(
       entries => {
         if (entries[0].isIntersecting && hasMoreRsvps && !isLoadingMore && !isLoadingInitial) {
+          console.log("Client: Sentinel visible, loading more RSVPs.");
           startTransition(() => {
             loadRsvps(true);
           });
