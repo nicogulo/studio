@@ -2,8 +2,9 @@
 "use server";
 
 import { firestore } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, Timestamp } from "firebase/firestore";
 import { z } from "zod";
+import { format } from 'date-fns';
 
 // Define a schema for RSVP data
 const RsvpSchema = z.object({
@@ -22,6 +23,8 @@ export interface RsvpFormState {
     _form?: string[];
   };
 }
+
+const coupleIdentifier = "nico-trio"; // This should match the subcollection name for the couple
 
 export async function handleRsvpSubmit(
   prevState: RsvpFormState,
@@ -44,8 +47,6 @@ export async function handleRsvpSubmit(
   }
 
   try {
-    // Updated Firestore path: global -> reservation (doc) -> nico-trio (collection)
-    const coupleIdentifier = "nico-trio"; // This could be made dynamic if needed
     const rsvpCollectionRef = collection(firestore, "global", "reservation", coupleIdentifier);
     
     await addDoc(rsvpCollectionRef, {
@@ -55,17 +56,66 @@ export async function handleRsvpSubmit(
     return { success: true, message: "Thank you for your RSVP!" };
   } catch (error: any) {
     console.error("Error saving RSVP to Firestore:", error);
+    let specificMessage = "An error occurred while submitting your RSVP. Please try again.";
     if (error.code) {
       console.error("Firestore Error Code:", error.code);
+      specificMessage += ` (Code: ${error.code})`;
     }
     if (error.message) {
       console.error("Firestore Error Message (full):", error.message);
     }
+    specificMessage += ` Ensure Firebase project '${firebaseConfig.projectId}' is set up, Firestore is enabled, and security rules allow writing to 'global/reservation/${coupleIdentifier}'. Verify your API key and other Firebase config values.`;
+    
     return {
       success: false,
-      message: "An error occurred while submitting your RSVP. Please try again. Ensure Firestore is set up and security rules allow writing to the 'global/reservation/" + "nico-trio" + "' path.",
+      message: specificMessage,
       errors: { _form: ["Server error. Please try again later."] },
     };
+  }
+}
+
+export interface SubmittedRsvpData {
+  id: string;
+  fullName: string;
+  attending: "yes" | "no";
+  message?: string;
+  submittedAt: string; // Store as string after formatting
+}
+
+export interface FetchRsvpsState {
+  success: boolean;
+  rsvps?: SubmittedRsvpData[];
+  error?: string;
+}
+
+export async function fetchRsvps(): Promise<FetchRsvpsState> {
+  try {
+    const rsvpCollectionRef = collection(firestore, "global", "reservation", coupleIdentifier);
+    const q = query(rsvpCollectionRef, orderBy("submittedAt", "desc"));
+    const querySnapshot = await getDocs(q);
+    
+    const rsvps = querySnapshot.docs.map(doc => {
+      const data = doc.data();
+      const submittedAtTimestamp = data.submittedAt as Timestamp | null;
+      return {
+        id: doc.id,
+        fullName: data.fullName,
+        attending: data.attending,
+        message: data.message || "",
+        submittedAt: submittedAtTimestamp ? format(submittedAtTimestamp.toDate(), "MMMM d, yyyy 'at' h:mm a") : "Date not available",
+      } as SubmittedRsvpData;
+    });
+    
+    return { success: true, rsvps };
+  } catch (error: any) {
+    console.error("Error fetching RSVPs from Firestore:", error);
+    let specificMessage = "Could not fetch submitted RSVPs.";
+     if (error.code) {
+      console.error("Firestore Error Code:", error.code);
+      specificMessage += ` (Code: ${error.code})`;
+    }
+    specificMessage += ` Ensure security rules allow reading from 'global/reservation/${coupleIdentifier}'.`;
+    return { success: false, error: specificMessage };
   }
 }
 
@@ -74,19 +124,14 @@ export interface AttireSuggestion {
   id: string;
   name: string;
   description: string;
-  imageUrl?: string; // Optional image URL
-  storeUrl?: string; // Optional link to an online store
-  dataAiHint?: string; // Added to match mock data and frontend usage
+  imageUrl?: string; 
+  storeUrl?: string; 
+  dataAiHint?: string; 
 }
 
-// Placeholder for the AI flow function.
-// This would typically be imported from '@/ai/flows/someFlowFile'
 async function generateAttireIdeasFromAI(query: string): Promise<AttireSuggestion[]> {
-  // In a real scenario, this function would call the Genkit flow.
-  // Example: const flowResult = await run("attireSuggestionFlow", { query });
-  // For now, returning mock data.
   console.log(`AI Attire Query (mock): ${query}`);
-  await new Promise(resolve => setTimeout(resolve, 1500)); // Simulate API call
+  await new Promise(resolve => setTimeout(resolve, 1500)); 
   
   if (query.toLowerCase().includes("error")) {
     throw new Error("Simulated AI error for attire suggestions.");
@@ -122,10 +167,6 @@ export async function fetchAttireSuggestions(
   }
 
   try {
-    // This is where you would call your actual Genkit AI flow
-    // For example: import { run } from '@genkit-ai/flow';
-    // const results = await run(attireFlow, query);
-    // For now, using the mock function:
     const suggestions = await generateAttireIdeasFromAI(query);
     
     if (suggestions.length === 0) {
@@ -138,3 +179,13 @@ export async function fetchAttireSuggestions(
   }
 }
 
+// Firebase config for logging purposes, ensure this is the correct one for your project
+const firebaseConfig = {
+  apiKey: "AIzaSyBChVpmxy_g1JfuZrd3NgwJmcieizdiUuM",
+  authDomain: "nico-trio.firebaseapp.com",
+  projectId: "nico-trio",
+  storageBucket: "nico-trio.appspot.com",
+  messagingSenderId: "142120789424",
+  appId: "1:142120789424:web:df492227d377923f122275",
+  measurementId: "G-JBZ5XYC2T7"
+};

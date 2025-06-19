@@ -1,14 +1,18 @@
+
 import { initializeApp, getApps, FirebaseApp } from 'firebase/app';
 import { getFirestore, Firestore } from 'firebase/firestore';
+// import { getAnalytics } from "firebase/analytics"; // Analytics not used in current setup
 
+// Your web app's Firebase configuration
+// For Firebase JS SDK v7.20.0 and later, measurementId is optional
 const firebaseConfig = {
-  apiKey: process.env.NEXT_PUBLIC_FIREBASE_API_KEY,
-  authDomain: process.env.NEXT_PUBLIC_FIREBASE_AUTH_DOMAIN,
-  projectId: process.env.NEXT_PUBLIC_FIREBASE_PROJECT_ID,
-  storageBucket: process.env.NEXT_PUBLIC_FIREBASE_STORAGE_BUCKET,
-  messagingSenderId: process.env.NEXT_PUBLIC_FIREBASE_MESSAGING_SENDER_ID,
-  appId: process.env.NEXT_PUBLIC_FIREBASE_APP_ID,
-  measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
+  apiKey: "AIzaSyBChVpmxy_g1JfuZrd3NgwJmcieizdiUuM",
+  authDomain: "nico-trio.firebaseapp.com",
+  projectId: "nico-trio",
+  storageBucket: "nico-trio.appspot.com", // Corrected: .appspot.com is standard
+  messagingSenderId: "142120789424",
+  appId: "1:142120789424:web:df492227d377923f122275",
+  measurementId: "G-JBZ5XYC2T7"
 };
 
 let app: FirebaseApp;
@@ -18,6 +22,7 @@ if (!getApps().length) {
   app = getApps()[0];
 }
 
+// const analytics = getAnalytics(app); // Analytics not used in current setup
 const firestore: Firestore = getFirestore(app);
 
 export { app, firestore };

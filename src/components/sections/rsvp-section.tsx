@@ -1,23 +1,28 @@
 
 "use client";
 
-import { useEffect } from "react";
+import { useEffect, useState, useActionState } from "react";
 import { useFormStatus } from "react-dom";
-import { useActionState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
 import { useToast } from "@/hooks/use-toast";
-import { handleRsvpSubmit, RsvpFormState } from "@/app/actions";
+import { handleRsvpSubmit, RsvpFormState, fetchRsvps, SubmittedRsvpData, FetchRsvpsState } from "@/app/actions";
 import { motion } from "framer-motion";
-import { Send, Loader2 } from "lucide-react";
+import { Send, Loader2, ListChecks, Info, CheckCircle, XCircle } from "lucide-react";
 
-const initialState: RsvpFormState = {
+const initialRsvpFormState: RsvpFormState = {
   success: false,
   message: "",
+};
+
+const initialFetchState: FetchRsvpsState = {
+  success: false,
+  rsvps: [],
 };
 
 function SubmitButton() {
@@ -31,19 +36,46 @@ function SubmitButton() {
 }
 
 const RsvpSection: React.FC = () => {
-  const [state, formAction] = useActionState(handleRsvpSubmit, initialState);
+  const [formState, formAction, isFormPending] = useActionState(handleRsvpSubmit, initialRsvpFormState);
   const { toast } = useToast();
+  const [submittedRsvps, setSubmittedRsvps] = useState<SubmittedRsvpData[]>([]);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  const [isLoadingRsvps, setIsLoadingRsvps] = useState(true);
+
+  const loadRsvps = async () => {
+    setIsLoadingRsvps(true);
+    setFetchError(null);
+    const result = await fetchRsvps();
+    if (result.success && result.rsvps) {
+      setSubmittedRsvps(result.rsvps);
+    } else {
+      setFetchError(result.error || "Failed to load RSVPs.");
+      toast({
+        title: "Error Loading RSVPs",
+        description: result.error || "Could not fetch submitted RSVPs. Please ensure Firestore is set up correctly and security rules allow reads.",
+        variant: "destructive",
+      });
+    }
+    setIsLoadingRsvps(false);
+  };
 
   useEffect(() => {
-    if (state.message) {
+    loadRsvps();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  useEffect(() => {
+    if (formState.message) {
       toast({
-        title: state.success ? "RSVP Submitted!" : "Oops!",
-        description: state.message,
-        variant: state.success ? "default" : "destructive",
+        title: formState.success ? "RSVP Submitted!" : "Oops!",
+        description: formState.message,
+        variant: formState.success ? "default" : "destructive",
       });
-      // Consider resetting form here if state.success is true and form is part of this component's state
+      if (formState.success) {
+        loadRsvps(); // Re-fetch RSVPs after successful submission
+      }
     }
-  }, [state, toast]);
+  }, [formState, toast]);
   
   return (
     <section id="rsvp" className="py-16 bg-secondary/20">
@@ -64,19 +96,19 @@ const RsvpSection: React.FC = () => {
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.5, delay: 0.1, ease: "easeOut" }}
         >
-          <Card className="max-w-lg mx-auto shadow-xl bg-card rounded-lg"> {/* max-w-lg is fine for mobile frame */}
+          <Card className="max-w-lg mx-auto shadow-xl bg-card rounded-lg">
             <CardHeader className="pt-6">
               <CardTitle className="font-headline text-2xl text-primary-foreground">Share Your Response</CardTitle>
               <CardDescription className="font-body text-sm text-muted-foreground pt-1">
                 Please let us know if you can make it by November 20, 2025.
               </CardDescription>
             </CardHeader>
-            <form action={formAction} key={state.success ? 'form-reset' : 'form-initial'}> {/* Add key to reset form on success */}
+            <form action={formAction} key={formState.success ? Date.now().toString() : 'form-initial'}> {/* Reset form on success */}
               <CardContent className="space-y-5">
                 <div className="space-y-1.5">
                   <Label htmlFor="fullName" className="font-body text-sm text-foreground">Full Name</Label>
                   <Input id="fullName" name="fullName" placeholder="Your full name" required className="font-body"/>
-                  {state.errors?.fullName && <p className="text-xs text-destructive font-body">{state.errors.fullName.join(", ")}</p>}
+                  {formState.errors?.fullName && <p className="text-xs text-destructive font-body">{formState.errors.fullName.join(", ")}</p>}
                 </div>
 
                 <div className="space-y-1.5">
@@ -91,15 +123,15 @@ const RsvpSection: React.FC = () => {
                       <Label htmlFor="attending-no" className="font-normal">No, with regrets</Label>
                     </div>
                   </RadioGroup>
-                  {state.errors?.attending && <p className="text-xs text-destructive font-body">{state.errors.attending.join(", ")}</p>}
+                  {formState.errors?.attending && <p className="text-xs text-destructive font-body">{formState.errors.attending.join(", ")}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                   <Label htmlFor="message" className="font-body text-sm text-foreground">Message / Wishes (Optional)</Label>
                   <Textarea id="message" name="message" placeholder="Leave a message for the couple..." rows={3} className="font-body"/>
-                  {state.errors?.message && <p className="text-xs text-destructive font-body">{state.errors.message.join(", ")}</p>}
+                  {formState.errors?.message && <p className="text-xs text-destructive font-body">{formState.errors.message.join(", ")}</p>}
                 </div>
-                {state.errors?._form && <p className="text-xs text-destructive font-body">{state.errors._form.join(", ")}</p>}
+                {formState.errors?._form && <p className="text-xs text-destructive font-body">{formState.errors._form.join(", ")}</p>}
               </CardContent>
               <CardFooter className="pb-6">
                 <SubmitButton />
@@ -107,6 +139,71 @@ const RsvpSection: React.FC = () => {
             </form>
           </Card>
         </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, amount: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
+          className="max-w-lg mx-auto mt-12"
+        >
+          <h3 className="font-headline text-2xl text-primary-foreground text-center mb-6 flex items-center justify-center">
+            <ListChecks className="mr-3 h-6 w-6 text-primary" />
+            Submitted Responses
+          </h3>
+          {isLoadingRsvps && (
+            <div className="space-y-3">
+              {[1, 2].map(i => (
+                <Card key={i} className="p-4 bg-card rounded-lg shadow animate-pulse">
+                  <div className="h-4 bg-muted rounded w-3/4 mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-1/2 mb-2"></div>
+                  <div className="h-3 bg-muted rounded w-1/4"></div>
+                </Card>
+              ))}
+            </div>
+          )}
+          {!isLoadingRsvps && fetchError && (
+             <Alert variant="destructive" className="bg-destructive/10">
+              <Info className="h-4 w-4" />
+              <AlertTitle>Error Loading Responses</AlertTitle>
+              <AlertDescription>
+                {fetchError} Please check your Firebase setup and security rules.
+              </AlertDescription>
+            </Alert>
+          )}
+          {!isLoadingRsvps && !fetchError && submittedRsvps.length === 0 && (
+            <Card className="p-6 bg-card rounded-lg shadow">
+              <p className="text-center text-muted-foreground font-body">No RSVPs submitted yet. Be the first!</p>
+            </Card>
+          )}
+          {!isLoadingRsvps && !fetchError && submittedRsvps.length > 0 && (
+            <div className="space-y-4">
+              {submittedRsvps.map((rsvp) => (
+                <Card key={rsvp.id} className="p-4 bg-card rounded-lg shadow-md hover:shadow-lg transition-shadow">
+                  <CardHeader className="p-0 mb-2 flex flex-row justify-between items-start">
+                    <CardTitle className="font-headline text-lg text-accent-foreground">{rsvp.fullName}</CardTitle>
+                    {rsvp.attending === "yes" ? (
+                       <span className="text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-100 text-green-800 border border-green-300">
+                         <CheckCircle className="w-3.5 h-3.5 mr-1.5 text-green-600" /> Attending
+                       </span>
+                    ) : (
+                      <span className="text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-300">
+                        <XCircle className="w-3.5 h-3.5 mr-1.5 text-red-600" /> Not Attending
+                      </span>
+                    )}
+                  </CardHeader>
+                  <CardContent className="p-0">
+                    {rsvp.message && (
+                      <p className="font-body text-sm text-foreground italic mb-1">"{rsvp.message}"</p>
+                    )}
+                    <p className="font-body text-xs text-muted-foreground">Submitted: {rsvp.submittedAt}</p>
+                  </CardContent>
+                </Card>
+              ))}
+            </div>
+          )}
+        </motion.div>
+
       </div>
     </section>
   );
