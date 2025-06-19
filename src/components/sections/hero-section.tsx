@@ -6,23 +6,18 @@ import { Mail } from "lucide-react";
 import Image from "next/image";
 
 interface HeroSectionProps {
-  // No props needed for now
+  onUnlockScrollAndNavigate: () => void;
 }
 
-const HeroSection: React.FC<HeroSectionProps> = () => {
-  const handleScrollToDetails = () => {
-    const detailsSection = document.getElementById("wedding-details");
-
-    if (detailsSection) {
-      detailsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-    } else {
-      console.error("HeroSection: Target section 'wedding-details' not found.");
-    }
+const HeroSection: React.FC<HeroSectionProps> = ({ onUnlockScrollAndNavigate }) => {
+  
+  const handleCTAInteraction = () => {
+    onUnlockScrollAndNavigate();
   };
 
   return (
     <section
-      id="hero"
+      id="hero" // id "hero" might be useful for other purposes, kept for now
       className="relative flex flex-col items-center justify-center min-h-screen text-center text-white"
     >
       <Image
@@ -43,7 +38,7 @@ const HeroSection: React.FC<HeroSectionProps> = () => {
         transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
         className="relative z-10 flex h-screen w-full flex-col items-center justify-between px-6 py-6"
       >
-        {/* Konten Atas: Judul, Nama, Tanggal */}
+        {/* Top Content: Title, Names, Date */}
         <div className="flex flex-col items-center text-center">
           <p className="font-body text-xs uppercase tracking-wider text-white/90 sm:text-sm">
             The Wedding of
@@ -56,12 +51,12 @@ const HeroSection: React.FC<HeroSectionProps> = () => {
           </p>
         </div>
         
-        {/* Konten Bawah: Tombol CTA dan Disclaimer */}
+        {/* Bottom Content: CTA Button and Disclaimer */}
         <div className="w-full max-w-xs text-center">
           <Button
             size="lg"
             className="font-body w-full rounded-lg border border-white/40 bg-white/20 py-2.5 text-sm text-white shadow-lg backdrop-blur-sm transition-all hover:bg-white/30 hover:shadow-xl focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black/50 sm:py-3 sm:text-base"
-            onClick={handleScrollToDetails}
+            onClick={handleCTAInteraction}
             aria-label="Buka Undangan dan lihat detail pernikahan"
           >
             <Mail className="mr-2 h-4 w-4 sm:h-5 sm:w-5" />
