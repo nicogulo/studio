@@ -62,50 +62,67 @@ const StoryGallerySection: React.FC = () => {
 
   return (
     <section id="gallery" className="py-16 bg-background">
-      <div className="px-4"> {/* Outer padding for the section title */}
+      <div className="container mx-auto px-4">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="font-headline text-3xl text-primary-foreground text-center mb-10"
+          className="font-headline text-3xl text-primary-foreground text-center mb-16 sm:mb-20"
         >
           Our Story
         </motion.h2>
-        
-        <div className="columns-1 sm:columns-2 gap-4 md:gap-6 max-w-xl mx-auto [column-fill:_balance]">
+
+        <div className="relative">
+          {/* Central Timeline Line for desktop */}
+          <div
+            className="absolute top-0 bottom-0 left-1/2 w-0.5 -translate-x-1/2 bg-primary/20 hidden sm:block"
+            aria-hidden="true"
+          ></div>
+
           {galleryItems.map((item, index) => (
-            <motion.div
+            <motion.div // Animate each story point
               key={index}
-              initial={{ opacity: 0, y: 20 }}
+              initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
-              viewport={{ once: true, amount: 0.2 }}
-              transition={{ duration: 0.5, delay: index * 0.05, ease: "easeOut" }}
-              className="break-inside-avoid mb-4 md:mb-6 block" // mb for vertical spacing between items in the flow
+              viewport={{ once: true, amount: 0.1 }}
+              transition={{ duration: 0.6, delay: index * 0.15, ease: "easeOut" }}
+              className="mb-12 sm:mb-16" // Each story point container
             >
-              <Card className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card rounded-lg w-full">
-                <CardContent 
-                  className="p-0 relative group cursor-pointer" 
-                  onClick={() => openLightbox(item.src, item.alt)}
-                  aria-label={`View image: ${item.caption}`}
-                >
-                  <div className="relative w-full aspect-[4/3]"> {/* Aspect ratio for image container */}
-                    <Image
-                      src={item.src}
-                      alt={item.alt}
-                      fill
-                      sizes="(max-width: 640px) 100vw, (max-width: 768px) 50vw, 33vw" // More refined sizes
-                      className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-t-lg"
-                      data-ai-hint={item.hint}
-                      priority={index < 2} // Prioritize loading first few images
-                    />
-                    <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300 rounded-t-lg" />
-                  </div>
-                </CardContent>
-                <CardFooter className="p-3 bg-card-foreground/5">
-                  <p className="text-xs font-body text-muted-foreground text-center w-full">{item.caption}</p>
-                </CardFooter>
-              </Card>
+              <div className={`flex flex-col sm:items-stretch ${index % 2 !== 0 ? 'sm:flex-row-reverse' : 'sm:flex-row'}`}>
+                {/* Image Card Wrapper */}
+                <div className="w-full sm:w-5/12 flex">
+                  <Card
+                    className="overflow-hidden shadow-lg hover:shadow-xl transition-shadow duration-300 bg-card rounded-lg w-full flex flex-col cursor-pointer group"
+                    onClick={() => openLightbox(item.src, item.alt)}
+                    aria-label={`View image: ${item.caption}`}
+                  >
+                    <CardContent className="p-0 relative aspect-[4/3]">
+                      <Image
+                        src={item.src}
+                        alt={item.alt}
+                        fill
+                        sizes="(max-width: 639px) 90vw, (max-width: 1023px) 40vw, 33vw"
+                        className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-t-lg"
+                        data-ai-hint={item.hint}
+                        priority={index < 2}
+                      />
+                      <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300 rounded-t-lg" />
+                    </CardContent>
+                    <CardFooter className="p-3 bg-card-foreground/5 mt-auto">
+                      <p className="text-xs font-body text-muted-foreground text-center w-full">{item.caption}</p>
+                    </CardFooter>
+                  </Card>
+                </div>
+
+                {/* Spacer & Timeline Dot (for desktop) */}
+                <div className={`hidden sm:flex sm:w-2/12 relative items-center justify-center`}>
+                  <div className="w-3 h-3 sm:w-3.5 sm:h-3.5 bg-primary rounded-full ring-4 ring-background shadow-md z-10"></div>
+                </div>
+
+                {/* Empty spacer for the other side on desktop */}
+                <div className="hidden sm:block sm:w-5/12"></div>
+              </div>
             </motion.div>
           ))}
         </div>
