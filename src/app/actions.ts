@@ -49,8 +49,15 @@ export async function handleRsvpSubmit(
       submittedAt: serverTimestamp(),
     });
     return { success: true, message: "Thank you for your RSVP!" };
-  } catch (error) {
+  } catch (error: any) {
     console.error("Error saving RSVP to Firestore:", error);
+    // Log more details if available
+    if (error.code) {
+      console.error("Firestore Error Code:", error.code);
+    }
+    if (error.message) {
+      console.error("Firestore Error Message (full):", error.message);
+    }
     return {
       success: false,
       message: "An error occurred while submitting your RSVP. Please try again.",
