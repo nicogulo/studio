@@ -1,18 +1,20 @@
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
-/* Custom scrollbar hiding styles */
+/* Custom scrollbar hiding styles - UPDATED */
 /* For Webkit-based browsers (Chrome, Safari, Edge) */
-html::-webkit-scrollbar,
-body::-webkit-scrollbar {
+::-webkit-scrollbar { /* Applied globally */
   display: none;
 }
 
 /* For Firefox */
-html,
-body {
+* { /* Applied globally, as html/body might not cover specific scrolling divs */
   scrollbar-width: none; /* Firefox */
+}
+/* For IE and Edge (older versions) */
+* { /* Applied globally */
   -ms-overflow-style: none;  /* Internet Explorer 10+ */
 }
 
