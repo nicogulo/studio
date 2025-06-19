@@ -44,14 +44,17 @@ export async function handleRsvpSubmit(
   }
 
   try {
-    await addDoc(collection(firestore, "rsvps"), {
+    // Updated Firestore path: global -> reservation (doc) -> nico-trio (collection)
+    const coupleIdentifier = "nico-trio"; // This could be made dynamic if needed
+    const rsvpCollectionRef = collection(firestore, "global", "reservation", coupleIdentifier);
+    
+    await addDoc(rsvpCollectionRef, {
       ...validatedFields.data,
       submittedAt: serverTimestamp(),
     });
     return { success: true, message: "Thank you for your RSVP!" };
   } catch (error: any) {
     console.error("Error saving RSVP to Firestore:", error);
-    // Log more details if available
     if (error.code) {
       console.error("Firestore Error Code:", error.code);
     }
@@ -60,7 +63,7 @@ export async function handleRsvpSubmit(
     }
     return {
       success: false,
-      message: "An error occurred while submitting your RSVP. Please try again.",
+      message: "An error occurred while submitting your RSVP. Please try again. Ensure Firestore is set up and security rules allow writing to the 'global/reservation/" + "nico-trio" + "' path.",
       errors: { _form: ["Server error. Please try again later."] },
     };
   }
@@ -134,3 +137,4 @@ export async function fetchAttireSuggestions(
     return { success: false, query, message: "Sorry, we couldn't fetch suggestions at this time. Please try again." };
   }
 }
+
