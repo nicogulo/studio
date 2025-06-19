@@ -25,10 +25,10 @@ const FooterSection: React.FC = () => {
           transition={{ duration: 0.5, ease: "easeOut" }}
         >
           <p className="font-headline text-2xl text-primary-foreground mb-4">
-            With love, Nico & Trio
+            With love, Frans & Nadia
           </p>
           <p className="font-body text-base text-accent-foreground mb-6 flex items-center justify-center">
-            #NicoTrioWedding <Heart className="w-5 h-5 ml-2 text-primary fill-primary" />
+            #FransNadiaWedding <Heart className="w-5 h-5 ml-2 text-primary fill-primary" />
           </p>
           {currentYear !== null ? (
             <p className="font-body text-sm text-muted-foreground">

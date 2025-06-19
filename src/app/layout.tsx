@@ -4,11 +4,11 @@ import './globals.css';
 import { Toaster } from '@/components/ui/toaster';
 
 export const metadata: Metadata = {
-  title: 'Forever & Always | Nico ❤️ Trio Wedding',
-  description: 'Join Nico and Trio as they celebrate their wedding. Find all the details and RSVP here.',
+  title: 'Forever & Always | Frans ❤️ Nadia Wedding',
+  description: 'Join Frans and Nadia as they celebrate their wedding. Find all the details and RSVP here.',
   openGraph: {
-    title: 'Forever & Always | Nico ❤️ Trio Wedding',
-    description: 'Join Nico and Trio as they celebrate their wedding. Find all the details and RSVP here.',
+    title: 'Forever & Always | Frans ❤️ Nadia Wedding',
+    description: 'Join Frans and Nadia as they celebrate their wedding. Find all the details and RSVP here.',
     images: [{ url: '/og-image.png', width: 1200, height: 630 }],
   }
 };

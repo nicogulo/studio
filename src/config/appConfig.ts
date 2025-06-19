@@ -21,7 +21,7 @@ export const firebaseConfigValues: FirebaseConfig = {
   measurementId: process.env.NEXT_PUBLIC_FIREBASE_MEASUREMENT_ID,
 };
 
-export const coupleIdentifier: string = process.env.NEXT_PUBLIC_COUPLE_IDENTIFIER || "nico-trio"; // Default if not set
+export const coupleIdentifier: string = process.env.NEXT_PUBLIC_COUPLE_IDENTIFIER || "frans-nadia"; // Default if not set
 
 // Basic validation to help during development
 if (

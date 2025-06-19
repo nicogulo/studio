@@ -21,14 +21,14 @@ const bankDetailsData: BankDetail[] = [
   {
     key: "bca",
     name: "BCA",
-    accountHolder: "Nico Alfian Renaldy Gulo / Trio Mei Kristin Zendrato",
+    accountHolder: "Frans / Nadia",
     accountNumber: "123-456-7890",
     icon: Landmark,
   },
   {
     key: "bni",
     name: "BNI",
-    accountHolder: "Nico Alfian Renaldy Gulo / Trio Mei Kristin Zendrato",
+    accountHolder: "Frans / Nadia",
     accountNumber: "098-765-4321",
     icon: Landmark,
   },
@@ -105,7 +105,7 @@ const GiftInformationSection: React.FC = () => {
                   If you'd like to send a physical gift, please use our home address:
                 </p>
                 <div className="font-body text-md text-accent-foreground bg-secondary/10 p-4 rounded-lg border border-secondary/30 w-full max-w-xs">
-                  Nico & Trio<br />
+                  Frans & Nadia<br />
                   Jl. Kebahagiaan Abadi No. 1<br />
                   Kota Kasih, Provinsi Cinta 12345<br />
                   Indonesia
@@ -225,4 +225,3 @@ const GiftInformationSection: React.FC = () => {
 };
 
 export default GiftInformationSection;
-

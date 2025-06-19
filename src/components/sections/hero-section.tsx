@@ -32,7 +32,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onUnlockScrollAndNavigate }) 
     >
       <Image
         src="https://images.unsplash.com/photo-1563808599481-34a342e44508?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb3VwbGUlMjB3ZWRkaW5nfGVufDB8fHx8MTc1MDI2ODI1Mnww&ixlib=rb-4.1.0&q=80&w=1080"
-        alt="Nico and Trio"
+        alt="Frans and Nadia"
         fill 
         style={{ objectFit: "cover" }} 
         quality={80}
@@ -54,7 +54,7 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onUnlockScrollAndNavigate }) 
             The Wedding of
           </p>
           <h1 className="font-headline text-4xl text-white sm:text-5xl mt-1 mb-2">
-            Nico & Trio
+            Frans & Nadia
           </h1>
           <p className="font-body text-sm text-white/80 sm:text-base">
             Tuesday, November 02, 2027
