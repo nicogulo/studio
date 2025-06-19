@@ -11,44 +11,54 @@ interface HeroSectionProps {
 
 const HeroSection: React.FC<HeroSectionProps> = ({ onUnlockScroll }) => {
   const handleScrollToDetails = () => {
-    onUnlockScroll(); // Unlock scroll first
+    onUnlockScroll(); // Meminta update state di parent untuk membuka kunci scroll
 
-    requestAnimationFrame(() => {
+    // Menunda upaya scroll untuk memberi waktu DOM diperbarui setelah onUnlockScroll
+    setTimeout(() => {
       const scrollableViewport = document.querySelector(
         'div[data-radix-scroll-area-viewport="true"]'
-      );
+      ) as HTMLElement | null;
       const detailsSection = document.getElementById("wedding-details");
 
-      if (detailsSection && scrollableViewport) {
-        const scrollTop = scrollableViewport.scrollTop; // Current scroll position of the viewport
-        const offsetTop = detailsSection.offsetTop; // Target element's offset from the top of the viewport
-        
-        // Calculate the target scroll position
-        // Subtract a small offset to ensure the section title is visible (e.g., 10% of viewport height)
-        const scrollTarget = offsetTop + scrollTop - (scrollableViewport.clientHeight * 0.1);
-        
-        scrollableViewport.scrollTo({
-          top: scrollTarget, 
-          behavior: "smooth",
-        });
-      } else if (detailsSection) {
-        // Fallback for environments where scrollableViewport might not be found immediately
-        // or if the scroll area isn't the direct parent.
-         detailsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      if (!detailsSection) {
+        console.error("HeroSection: Target section 'wedding-details' not found.");
+        return;
       }
-    });
+
+      if (!scrollableViewport) {
+        console.error("HeroSection: Scrollable viewport 'div[data-radix-scroll-area-viewport=\"true\"]' not found. Falling back to scrollIntoView on target.");
+        // Fallback: jika viewport spesifik tidak ditemukan, coba scrollIntoView generik
+        detailsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        return;
+      }
+      
+      // Periksa apakah viewport benar-benar bisa di-scroll setelah dibuka kuncinya
+      const viewportStyle = window.getComputedStyle(scrollableViewport);
+      if (viewportStyle.overflowY === 'hidden') {
+        console.warn("HeroSection: Viewport overflowY masih hidden. Scroll mungkin tidak bekerja.");
+        // Jika masih hidden, mungkin perlu timeout lebih lama atau ada masalah propagasi state.
+        // Untuk saat ini, lanjutkan dan lihat hasilnya.
+      }
+      
+      const targetScrollPosition = detailsSection.offsetTop;
+
+      scrollableViewport.scrollTo({
+        top: targetScrollPosition,
+        behavior: "smooth",
+      });
+    }, 100); // Timeout 100ms untuk memberi ruang napas bagi update DOM.
   };
 
   return (
     <section
       id="hero"
-      className="relative flex flex-col items-center justify-center min-h-screen text-center text-white"
+      className="relative flex flex-col items-center justify-center min-h-screen text-center text-white" // min-h-screen memastikan section mengambil tinggi penuh
     >
       <Image
         src="https://images.unsplash.com/photo-1563808599481-34a342e44508?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwyfHxjb3VwbGUlMjB3ZWRkaW5nfGVufDB8fHx8MTc1MDI2ODI1Mnww&ixlib=rb-4.1.0&q=80&w=1080"
         alt="Nico and Trio"
-        layout="fill"
-        objectFit="cover"
+        fill // Menggantikan layout="fill" objectFit="cover" dengan fill untuk Next 13+
+        style={{ objectFit: "cover" }} // objectFit sekarang di style
         quality={80}
         className="z-0"
         priority
@@ -60,13 +70,14 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onUnlockScroll }) => {
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.8, delay: 0.2, ease: "easeOut" }}
-        className="relative z-10 flex h-screen w-full flex-col items-center justify-between px-6 py-6"
+        className="relative z-10 flex h-screen w-full flex-col items-center justify-between px-6 py-6" // h-screen untuk memastikan justify-between bekerja
       >
-        <div className="flex flex-col items-center">
+        {/* Konten Atas: Judul, Nama, Tanggal */}
+        <div className="flex flex-col items-center text-center">
           <p className="font-body text-xs uppercase tracking-wider text-white/90 sm:text-sm">
             The Wedding of
           </p>
-          <h1 className="font-headline text-4xl text-white sm:text-5xl">
+          <h1 className="font-headline text-4xl text-white sm:text-5xl mt-1 mb-2">
             Nico & Trio
           </h1>
           <p className="font-body text-sm text-white/80 sm:text-base">
@@ -74,7 +85,8 @@ const HeroSection: React.FC<HeroSectionProps> = ({ onUnlockScroll }) => {
           </p>
         </div>
         
-        <div className="w-full max-w-xs">
+        {/* Konten Bawah: Tombol CTA dan Disclaimer */}
+        <div className="w-full max-w-xs text-center">
           <Button
             size="lg"
             className="font-body w-full rounded-lg border border-white/40 bg-white/20 py-2.5 text-sm text-white shadow-lg backdrop-blur-sm transition-all hover:bg-white/30 hover:shadow-xl focus:ring-2 focus:ring-white/50 focus:ring-offset-2 focus:ring-offset-black/50 sm:py-3 sm:text-base"
