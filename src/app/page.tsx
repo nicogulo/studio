@@ -40,7 +40,7 @@ export default function HomePage() {
   };
 
   return (
-    <div className="flex items-center justify-center h-screen overflow-hidden bg-gray-800 p-0 sm:p-4 md:p-6">
+    <div className="flex items-center justify-center h-screen overflow-hidden bg-gray-800 p-0">
       <main
         ref={mainContentRef}
         className={`
