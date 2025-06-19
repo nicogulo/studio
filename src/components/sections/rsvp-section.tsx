@@ -2,8 +2,8 @@
 "use client";
 
 import { useEffect, useState, useActionState, startTransition, useRef, useCallback } from "react";
-import { useFormStatus } from "react-dom";
-import { Timestamp } from "firebase/firestore"; // Import Timestamp
+// import { useFormStatus } from "react-dom"; // No longer needed directly in RsvpSection for submit button
+import { Timestamp } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -55,9 +55,9 @@ const RsvpSection: React.FC = () => {
       setIsLoadingMore(true);
     } else {
       setIsLoadingInitial(true);
-      setRsvps([]); // Clear previous RSVPs on refresh/initial load
-      setLastFetchedDocTimestamp(null); // Reset pagination cursor
-      setHasMoreRsvps(true); // Assume there might be more
+      setRsvps([]);
+      setLastFetchedDocTimestamp(null);
+      setHasMoreRsvps(true);
     }
     setFetchError(null);
 
@@ -69,7 +69,7 @@ const RsvpSection: React.FC = () => {
             const { seconds, nanoseconds } = result.lastDocTimestampForPagination;
             setLastFetchedDocTimestamp(new Timestamp(seconds, nanoseconds));
         } else {
-            setLastFetchedDocTimestamp(null); // No more docs, or an error occurred
+            setLastFetchedDocTimestamp(null);
         }
         setHasMoreRsvps(result.hasMore);
       } else {
@@ -103,9 +103,9 @@ const RsvpSection: React.FC = () => {
       loadRsvps(false); // Initial load
     });
   // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []); // Run once on mount
+  }, []); // loadRsvps is memoized, but initial load should only run once.
 
-
+  // Effect for handling form submission feedback (toasts and data refresh)
   useEffect(() => {
     if (formState.success) {
       toast({
@@ -123,7 +123,13 @@ const RsvpSection: React.FC = () => {
         variant: "destructive",
       });
     }
-  }, [formState, toast, loadRsvps]);
+    // This effect should run when `formState` (the object from useActionState) changes,
+    // or when `toast` changes (which is unlikely but good practice to include).
+    // `loadRsvps` is called as a side effect but should not be a dependency causing this effect to re-run
+    // if only `loadRsvps` reference changes due to its own internal state updates.
+    // The primary trigger here is the change in `formState` indicating a new submission result.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [formState, toast]); // Removed loadRsvps from dependency array to break loop
 
   useEffect(() => {
     const currentSentinel = sentinelRef.current;
@@ -282,7 +288,7 @@ const RsvpSection: React.FC = () => {
             </div>
           )}
 
-          <div ref={sentinelRef} className="h-10" /> {/* Sentinel for IntersectionObserver */}
+          <div ref={sentinelRef} className="h-10" />
 
           {isLoadingMore && (
             <div className="flex justify-center items-center py-4">
@@ -303,6 +309,3 @@ const RsvpSection: React.FC = () => {
 };
 
 export default RsvpSection;
-
-
-    
