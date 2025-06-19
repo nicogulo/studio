@@ -60,14 +60,14 @@ const GiftInformationSection: React.FC = () => {
   const currentBank = bankDetailsData.find(bank => bank.key === activeBankTab);
 
   return (
-    <section id="gifts" className="py-16 bg-gradient-to-b from-background to-secondary/5">
+    <section id="gifts" className="py-12 bg-gradient-to-b from-background to-secondary/5">
       <div className="container mx-auto px-4">
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, amount: 0.2 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          className="text-center mb-12"
+          className="text-center mb-10"
         >
           <h2 className="font-headline text-4xl text-primary-foreground mb-4">
             A Note on Gifts
@@ -78,7 +78,7 @@ const GiftInformationSection: React.FC = () => {
           </p>
         </motion.div>
 
-        <FloralDivider className="mb-12" />
+        <FloralDivider className="mb-10" />
 
         <div className="grid grid-cols-1 gap-8 max-w-2xl mx-auto">
           <motion.div
