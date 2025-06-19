@@ -126,15 +126,24 @@ const StoryGallerySection: React.FC = () => {
                   >
                     <svg
                       viewBox="0 0 50 100"
-                      className={`w-16 h-32 md:w-20 md:h-40 lg:w-24 lg:h-48 fill-current text-primary/20 ${
+                      fill="currentColor"
+                      className={`w-16 h-32 md:w-20 md:h-40 lg:w-24 lg:h-48 text-primary/20 ${
                         index % 4 === 0 ? 'transform -rotate-[12deg]' :
                         index % 4 === 1 ? 'transform rotate-[12deg] scale-x-[-1]' :
                         index % 4 === 2 ? 'transform rotate-[8deg]' :
                                           'transform -rotate-[8deg] scale-x-[-1]'
                       }`}
                     >
-                      {/* New, safer SVG path */}
-                      <path d="M25,5 L10,40 C15,70 25,95 25,95 C25,95 35,70 40,40 L25,5 Z" />
+                      {/* Stem */}
+                      <path d="M24,95 L24,30 L26,30 L26,95 Z" />
+                      {/* Leaf 1 (left) */}
+                      <path d="M25,75 C18,72 15,65 15,58 C15,65 18,72 25,75 Z" />
+                      {/* Leaf 2 (right) */}
+                      <path d="M25,60 C32,57 35,50 35,43 C35,50 32,57 25,60 Z" />
+                      {/* Flower (3 circles) */}
+                      <circle cx="25" cy="22" r="6"/>
+                      <circle cx="19" cy="28" r="4"/>
+                      <circle cx="31" cy="28" r="4"/>
                     </svg>
                   </motion.div>
                 </div>
@@ -149,3 +158,4 @@ const StoryGallerySection: React.FC = () => {
 };
 
 export default StoryGallerySection;
+
