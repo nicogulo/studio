@@ -1,8 +1,9 @@
 
 "use client";
 
-import { useState, useEffect, useRef } from 'react';
+import { useState } from 'react';
 import HeroSection from "@/components/sections/hero-section";
+import ThanksgivingSection from "@/components/sections/thanksgiving-section";
 import StoryGallerySection from "@/components/sections/story-gallery-section";
 import CountdownTimerSection from "@/components/sections/countdown-timer-section";
 import WeddingDetailsSection from "@/components/sections/wedding-details-section";
@@ -13,54 +14,52 @@ import FloralDivider from "@/components/floral-divider";
 
 export default function HomePage() {
   const [isScrollLocked, setIsScrollLocked] = useState(true);
-  const mainContentRef = useRef<HTMLElement>(null);
 
   const handleUnlockScrollAndNavigate = () => {
     setIsScrollLocked(false);
 
-    // Ensure DOM update (overflow style change) before trying to scroll
     requestAnimationFrame(() => {
-      // A small delay can help ensure the browser has processed the style change
       setTimeout(() => {
         const detailsSection = document.getElementById("wedding-details");
-        if (detailsSection && mainContentRef.current) {
-          // Scroll the main container to the top of the detailsSection
-          mainContentRef.current.scrollTo({
-            top: detailsSection.offsetTop,
-            behavior: 'smooth'
-          });
-        } else if (detailsSection) {
-          // Fallback if ref isn't immediately available or for some edge cases
-          // This scrolls the window, which is not ideal if mainContentRef is the intended scroll container
-          // but given mainContentRef is the primary scroll area, its .scrollTo is preferred.
+        if (detailsSection) {
           detailsSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-      }, 50); // 50ms delay, adjust if needed
+      }, 100); 
     });
   };
 
   return (
-    <div className="flex items-center justify-center h-screen overflow-hidden bg-gray-800 p-0">
+    <div 
+      className={`
+        flex items-center justify-center bg-gray-800
+        ${isScrollLocked ? 'h-screen overflow-y-hidden' : 'min-h-screen overflow-y-auto'}
+      `}
+    >
       <main
-        ref={mainContentRef}
         className={`
-          relative w-full max-w-[28.125rem] h-full bg-background shadow-2xl 
-          ${isScrollLocked ? 'overflow-y-hidden' : 'overflow-y-auto'}
+          relative w-full max-w-[28.125rem] bg-background shadow-2xl 
           transition-all duration-300 ease-in-out
+          ${isScrollLocked ? 'h-full overflow-y-hidden' : 'h-auto'} 
         `}
         style={{ WebkitOverflowScrolling: 'touch' }} 
       >
         <HeroSection onUnlockScrollAndNavigate={handleUnlockScrollAndNavigate} />
-        <StoryGallerySection />
-        <FloralDivider />
-        <CountdownTimerSection />
-        <FloralDivider />
-        <WeddingDetailsSection />
-        <FloralDivider />
-        <AttireSuggestionsSection />
-        <FloralDivider />
-        <RsvpSection />
-        <FooterSection />
+        {!isScrollLocked && (
+          <>
+            <ThanksgivingSection />
+            <FloralDivider />
+            <StoryGallerySection />
+            <FloralDivider />
+            <CountdownTimerSection />
+            <FloralDivider />
+            <WeddingDetailsSection />
+            <FloralDivider />
+            <AttireSuggestionsSection />
+            <FloralDivider />
+            <RsvpSection />
+            <FooterSection />
+          </>
+        )}
       </main>
     </div>
   );
