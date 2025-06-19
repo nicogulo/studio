@@ -4,6 +4,7 @@
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { Slider } from "@/components/ui/slider";
+import { Popover, PopoverContent, PopoverTrigger } from "@/components/ui/popover";
 import { Play, Pause, Volume2, Volume1, VolumeX } from "lucide-react";
 import { motion } from "framer-motion";
 import type {FC} from 'react';
@@ -46,20 +47,34 @@ const FloatingMusicButton: FC<FloatingMusicButtonProps> = ({
         >
           {isPlaying ? <Pause className="h-5 w-5" /> : <Play className="h-5 w-5" />}
         </Button>
-        <div className="flex items-center space-x-1.5 pr-1">
-          <VolumeIcon />
-          <Slider
-            value={[volume * 100]}
-            max={100}
-            step={1}
-            className="w-20 sm:w-24"
-            onValueChange={(value) => onVolumeChange(value[0] / 100)}
-            aria-label="Volume control"
-          />
-        </div>
+        
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button
+              variant="ghost"
+              size="icon"
+              className="text-primary hover:bg-primary/10 hover:text-primary rounded-full w-10 h-10"
+              aria-label="Adjust volume"
+            >
+              <VolumeIcon />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto p-4 h-40 flex justify-center items-center mb-2" side="top" align="center">
+            <Slider
+              value={[volume * 100]}
+              max={100}
+              step={1}
+              orientation="vertical"
+              className="h-32" // Explicit height for the vertical slider track area
+              onValueChange={(value) => onVolumeChange(value[0] / 100)}
+              aria-label="Volume control"
+            />
+          </PopoverContent>
+        </Popover>
       </Card>
     </motion.div>
   );
 };
 
 export default FloatingMusicButton;
+
