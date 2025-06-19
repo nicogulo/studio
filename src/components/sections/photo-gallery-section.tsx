@@ -2,12 +2,12 @@
 "use client";
 
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Lightbox from "@/components/lightbox";
 import { motion } from "framer-motion";
 import { Card, CardContent } from "@/components/ui/card";
 
-const galleryPhotos = [
+const allGalleryPhotos = [
   { src: "https://images.unsplash.com/photo-1541089404510-5c9a779841fc?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjb3VwbGUlMjBqb3lmdWx8ZW58MHx8fHwxNzUwMzAzOTQxfDA&ixlib=rb-4.1.0&q=80&w=1080", alt: "Joyful couple moment", hint: "couple joyful", aspect: "aspect-[4/3]" },
   { src: "https://images.unsplash.com/photo-1633460730540-e4029e619db8?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwzfHxjb3VwbGUlMjBwb3J0cmFpdHxlbnwwfHx8fDE3NTAzMDM5NDF8MA&ixlib=rb-4.1.0&q=80&w=1080", alt: "Elegant couple portrait", hint: "couple portrait", aspect: "aspect-[2/3]" },
   { src: "https://images.unsplash.com/photo-1743642890366-e4c73155e452?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw0fHxjb3VwbGUlMjBjYW5kaWR8ZW58MHx8fHwxNzUwMzAzOTQxfDA&ixlib=rb-4.1.0&q=80&w=1080", alt: "Candid couple interaction", hint: "couple candid", aspect: "aspect-square" },
@@ -18,9 +18,21 @@ const galleryPhotos = [
   { src: "https://images.unsplash.com/photo-1636990536251-e1ddbab413af?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHw3fHxjb3VwbGUlMjBzdHlsaXNofGVufDB8fHx8MTc1MDMwMzk0MXww&ixlib=rb-4.1.0&q=80&w=1080", alt: "Stylish couple pose", hint: "couple stylish", aspect: "aspect-[4/5]" },
 ];
 
+interface GalleryPhoto {
+  src: string;
+  alt: string;
+  hint: string;
+  aspect: string;
+}
+
 const PhotoGallerySection: React.FC = () => {
   const [lightboxImage, setLightboxImage] = useState<string | null>(null);
   const [lightboxAlt, setLightboxAlt] = useState<string>("");
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true); // Ensures animations only run client-side
+  }, []);
 
   const openLightbox = (src: string, alt: string) => {
     setLightboxImage(src);
@@ -31,6 +43,63 @@ const PhotoGallerySection: React.FC = () => {
     setLightboxImage(null);
     setLightboxAlt("");
   };
+
+  const DURATION_BASE = 50; // seconds for a full scroll loop
+  const DURATION_VARIATION = 15; // seconds
+
+  const getColumnPhotos = (columnIndex: number, numCols: number): GalleryPhoto[] => {
+    return allGalleryPhotos.filter((_, i) => i % numCols === columnIndex);
+  };
+  
+  // Duplicate photos for seamless looping
+  const createLoopedPhotos = (photos: GalleryPhoto[]) => [...photos, ...photos];
+
+  const renderColumn = (photos: GalleryPhoto[], scrollDirection: "up" | "down", keyPrefix: string) => {
+    if (!isMounted || photos.length === 0) return null;
+    
+    const loopedPhotos = createLoopedPhotos(photos);
+    const uniqueKey = `${keyPrefix}-${scrollDirection}`;
+    const randomDurationOffset = Math.random() * DURATION_VARIATION;
+
+    return (
+      <div className="flex-1 overflow-hidden h-[70vh] sm:h-[75vh]">
+        <motion.div
+          className="flex flex-col gap-3"
+          animate={{ y: scrollDirection === "up" ? ["0%", "-50%"] : ["-50%", "0%"] }}
+          transition={{
+            duration: DURATION_BASE + randomDurationOffset,
+            ease: "linear",
+            repeat: Infinity,
+            repeatType: "loop",
+          }}
+          key={uniqueKey}
+        >
+          {loopedPhotos.map((photo, index) => (
+            <Card
+              key={`${photo.src}-${index}`}
+              className={`${photo.aspect} overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 bg-card rounded-lg w-full cursor-pointer group`}
+              onClick={() => openLightbox(photo.src, photo.alt)}
+              aria-label={`View image: ${photo.alt}`}
+            >
+              <CardContent className="p-0 relative w-full h-full">
+                <Image
+                  src={photo.src}
+                  alt={photo.alt}
+                  fill
+                  sizes="(max-width: 639px) 45vw, (max-width: 1023px) 30vw, 20vw"
+                  className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-lg"
+                  data-ai-hint={photo.hint}
+                  priority={index < 2 && (keyPrefix.includes("col0") || keyPrefix.includes("col1"))} // Prioritize first few images in first visible columns
+                />
+                <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-300 rounded-lg" />
+              </CardContent>
+            </Card>
+          ))}
+        </motion.div>
+      </div>
+    );
+  };
+
 
   return (
     <section id="photo-gallery" className="py-16 bg-secondary/10">
@@ -45,36 +114,17 @@ const PhotoGallerySection: React.FC = () => {
           Captured Moments
         </motion.h2>
 
-        <div className="grid grid-cols-2 sm:grid-cols-3 gap-2 sm:gap-3">
-          {galleryPhotos.map((photo, index) => (
-            <motion.div
-              key={index}
-              initial={{ opacity: 0, scale: 0.9 }}
-              whileInView={{ opacity: 1, scale: 1 }}
-              viewport={{ once: true, amount: 0.1 }}
-              transition={{ duration: 0.4, delay: index * 0.05, ease: "easeOut" }}
-              className={`${photo.aspect} ${(index % 5 === 0 || index % 5 === 3) && galleryPhotos.length > 3 ? 'sm:col-span-1' : 'sm:col-span-1'}`} // Example of varied span for larger screens
-            >
-              <Card
-                className="overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 bg-card rounded-lg w-full h-full cursor-pointer group"
-                onClick={() => openLightbox(photo.src, photo.alt)}
-                aria-label={`View image: ${photo.alt}`}
-              >
-                <CardContent className="p-0 relative w-full h-full">
-                  <Image
-                    src={photo.src}
-                    alt={photo.alt}
-                    fill
-                    sizes="(max-width: 639px) 45vw, (max-width: 1023px) 30vw, 20vw"
-                    className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-lg"
-                    data-ai-hint={photo.hint}
-                    priority={index < 4} 
-                  />
-                  <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-300 rounded-lg" />
-                </CardContent>
-              </Card>
-            </motion.div>
-          ))}
+        {/* Mobile: 2 Columns */}
+        <div className="flex sm:hidden gap-3">
+          {renderColumn(getColumnPhotos(0, 2), "up", "mobile-col0")}
+          {renderColumn(getColumnPhotos(1, 2), "down", "mobile-col1")}
+        </div>
+
+        {/* Desktop: 3 Columns */}
+        <div className="hidden sm:flex gap-3">
+          {renderColumn(getColumnPhotos(0, 3), "up", "desktop-col0")}
+          {renderColumn(getColumnPhotos(1, 3), "down", "desktop-col1")}
+          {renderColumn(getColumnPhotos(2, 3), "up", "desktop-col2")}
         </div>
       </div>
       <Lightbox imageUrl={lightboxImage} altText={lightboxAlt} onClose={closeLightbox} />
@@ -83,4 +133,3 @@ const PhotoGallerySection: React.FC = () => {
 };
 
 export default PhotoGallerySection;
-
