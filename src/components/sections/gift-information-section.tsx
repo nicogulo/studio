@@ -132,8 +132,8 @@ const GiftInformationSection: React.FC = () => {
               </CardHeader>
               <CardContent className="p-6 text-center flex-grow flex flex-col">
                 <p className="font-body text-base text-foreground mb-6 leading-relaxed">
-                  Tanpa mengurangi rasa hormat, bagi Bapak/Ibu/Saudara/i yang ingin memberikan hadiah, kami sangat berterima kasih.
-                  Kami juga menerima hadiah dalam bentuk uang tunai. Hadiah dapat dikirimkan melalui rekening berikut:
+                  Without diminishing our respect, for guests who wish to give a gift, we are very grateful.
+                  We also accept gifts in the form of cash. Gifts can be sent through the following accounts:
                 </p>
 
                 <Button
@@ -143,7 +143,7 @@ const GiftInformationSection: React.FC = () => {
                   aria-expanded={showBankDetails}
                 >
                   {showBankDetails ? <ChevronUp className="mr-2 h-4 w-4" /> : <GiftIcon className="mr-2 h-4 w-4" />}
-                  {showBankDetails ? "Tutup Rekening" : "Buka Rekening Hadiah"}
+                  {showBankDetails ? "Hide Bank Details" : "Show Bank Details"}
                 </Button>
 
                 <AnimatePresence initial={false}>
@@ -186,11 +186,11 @@ const GiftInformationSection: React.FC = () => {
                         >
                           <p className="font-headline text-xl text-primary-foreground text-center mb-3">{currentBank.name}</p>
                           <div>
-                            <p className="font-body text-sm text-muted-foreground">Atas Nama:</p>
+                            <p className="font-body text-sm text-muted-foreground">Account Holder:</p>
                             <p className="font-body text-md text-foreground font-semibold">{currentBank.accountHolder}</p>
                           </div>
                           <div>
-                            <p className="font-body text-sm text-muted-foreground">Nomor Rekening:</p>
+                            <p className="font-body text-sm text-muted-foreground">Account Number:</p>
                             <p className="font-body text-md text-foreground font-semibold tracking-wider">{currentBank.accountNumber}</p>
                           </div>
                         </motion.div>
@@ -201,7 +201,7 @@ const GiftInformationSection: React.FC = () => {
                         className="w-full max-w-xs mx-auto bg-accent hover:bg-accent/90 text-accent-foreground"
                       >
                         <Copy className="mr-2 h-4 w-4" />
-                        Salin Nomor Rekening
+                        Copy Account Number
                       </Button>
                     </motion.div>
                   )}
