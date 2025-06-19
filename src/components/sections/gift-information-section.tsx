@@ -21,14 +21,14 @@ const bankDetailsData: BankDetail[] = [
   {
     key: "bca",
     name: "BCA",
-    accountHolder: "Nico Alfian Renaldy Gulo / Trio Wijaya",
+    accountHolder: "Nico Alfian Renaldy Gulo / Trio Mei Kristin Zendrato",
     accountNumber: "123-456-7890",
     icon: Landmark,
   },
   {
     key: "bni",
     name: "BNI",
-    accountHolder: "Nico Alfian Renaldy Gulo / Trio Wijaya",
+    accountHolder: "Nico Alfian Renaldy Gulo / Trio Mei Kristin Zendrato",
     accountNumber: "098-765-4321",
     icon: Landmark,
   },
