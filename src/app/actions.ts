@@ -26,6 +26,17 @@ export interface RsvpFormState {
 
 const coupleIdentifier = "nico-trio"; // This should match the subcollection name for the couple
 
+// Firebase config for logging purposes, ensure this is the correct one for your project
+const firebaseConfigForLogging = {
+  apiKey: "AIzaSyBChVpmxy_g1JfuZrd3NgwJmcieizdiUuM",
+  authDomain: "nico-trio.firebaseapp.com",
+  projectId: "nico-trio",
+  storageBucket: "nico-trio.appspot.com",
+  messagingSenderId: "142120789424",
+  appId: "1:142120789424:web:df492227d377923f122275",
+  measurementId: "G-JBZ5XYC2T7"
+};
+
 export async function handleRsvpSubmit(
   prevState: RsvpFormState,
   formData: FormData
@@ -64,7 +75,7 @@ export async function handleRsvpSubmit(
     if (error.message) {
       console.error("Firestore Error Message (full):", error.message);
     }
-    specificMessage += ` Ensure Firebase project '${firebaseConfig.projectId}' is set up, Firestore is enabled, and security rules allow writing to 'global/reservation/${coupleIdentifier}'. Verify your API key and other Firebase config values.`;
+    specificMessage += ` Ensure Firebase project '${firebaseConfigForLogging.projectId}' is set up, Firestore is enabled, and security rules allow writing to 'global/reservation/${coupleIdentifier}'. Verify your API key and other Firebase config values in src/lib/firebase.ts.`;
     
     return {
       success: false,
@@ -114,6 +125,9 @@ export async function fetchRsvps(): Promise<FetchRsvpsState> {
       console.error("Firestore Error Code:", error.code);
       specificMessage += ` (Code: ${error.code})`;
     }
+    if (error.message) {
+      console.error("Firestore Error Message (full):", error.message);
+    }
     specificMessage += ` Ensure security rules allow reading from 'global/reservation/${coupleIdentifier}'.`;
     return { success: false, error: specificMessage };
   }
@@ -142,9 +156,9 @@ async function generateAttireIdeasFromAI(query: string): Promise<AttireSuggestio
   }
 
   return [
-    { id: "1", name: "Elegant Floral Midi Dress", description: "A beautiful floral midi dress perfect for a spring/summer wedding. Light and airy.", imageUrl: "https://placehold.co/300x400.png?text=Floral+Dress", storeUrl: "#" , dataAiHint: "floral dress"},
-    { id: "2", name: "Classic Navy Suit", description: "A timeless navy suit, well-tailored, paired with a crisp white shirt and a patterned tie.", imageUrl: "https://placehold.co/300x400.png?text=Navy+Suit", storeUrl: "#", dataAiHint: "navy suit" },
-    { id: "3", name: "Pastel Cocktail Dress", description: "A chic cocktail dress in a soft pastel shade, knee-length or midi.", imageUrl: "https://placehold.co/300x400.png?text=Pastel+Dress", storeUrl: "#", dataAiHint: "pastel dress"},
+    { id: "1", name: "Elegant Floral Midi Dress", description: "A beautiful floral midi dress perfect for a spring/summer wedding. Light and airy.", imageUrl: "https://placehold.co/300x400.png", storeUrl: "#" , dataAiHint: "floral dress"},
+    { id: "2", name: "Classic Navy Suit", description: "A timeless navy suit, well-tailored, paired with a crisp white shirt and a patterned tie.", imageUrl: "https://placehold.co/300x400.png", storeUrl: "#", dataAiHint: "navy suit" },
+    { id: "3", name: "Pastel Cocktail Dress", description: "A chic cocktail dress in a soft pastel shade, knee-length or midi.", imageUrl: "https://placehold.co/300x400.png", storeUrl: "#", dataAiHint: "pastel dress"},
   ];
 }
 
@@ -178,14 +192,3 @@ export async function fetchAttireSuggestions(
     return { success: false, query, message: "Sorry, we couldn't fetch suggestions at this time. Please try again." };
   }
 }
-
-// Firebase config for logging purposes, ensure this is the correct one for your project
-const firebaseConfig = {
-  apiKey: "AIzaSyBChVpmxy_g1JfuZrd3NgwJmcieizdiUuM",
-  authDomain: "nico-trio.firebaseapp.com",
-  projectId: "nico-trio",
-  storageBucket: "nico-trio.appspot.com",
-  messagingSenderId: "142120789424",
-  appId: "1:142120789424:web:df492227d377923f122275",
-  measurementId: "G-JBZ5XYC2T7"
-};

@@ -1,7 +1,7 @@
 
 "use client";
 
-import { useEffect, useState, useActionState } from "react";
+import { useEffect, useState, useActionState, startTransition } from "react";
 import { useFormStatus } from "react-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,20 +9,15 @@ import { Label } from "@/components/ui/label";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
-import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert"
+import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
 import { handleRsvpSubmit, RsvpFormState, fetchRsvps, SubmittedRsvpData, FetchRsvpsState } from "@/app/actions";
 import { motion } from "framer-motion";
-import { Send, Loader2, ListChecks, Info, CheckCircle, XCircle } from "lucide-react";
+import { Send, Loader2, ListChecks, Info, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 
 const initialRsvpFormState: RsvpFormState = {
   success: false,
   message: "",
-};
-
-const initialFetchState: FetchRsvpsState = {
-  success: false,
-  rsvps: [],
 };
 
 function SubmitButton() {
@@ -41,38 +36,63 @@ const RsvpSection: React.FC = () => {
   const [submittedRsvps, setSubmittedRsvps] = useState<SubmittedRsvpData[]>([]);
   const [fetchError, setFetchError] = useState<string | null>(null);
   const [isLoadingRsvps, setIsLoadingRsvps] = useState(true);
+  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const loadRsvps = async () => {
-    setIsLoadingRsvps(true);
-    setFetchError(null);
-    const result = await fetchRsvps();
-    if (result.success && result.rsvps) {
-      setSubmittedRsvps(result.rsvps);
+  const loadRsvps = async (isManualRefresh = false) => {
+    if (isManualRefresh) {
+      setIsRefreshing(true);
     } else {
-      setFetchError(result.error || "Failed to load RSVPs.");
-      toast({
-        title: "Error Loading RSVPs",
-        description: result.error || "Could not fetch submitted RSVPs. Please ensure Firestore is set up correctly and security rules allow reads.",
-        variant: "destructive",
-      });
+      setIsLoadingRsvps(true);
     }
-    setIsLoadingRsvps(false);
+    setFetchError(null);
+    
+    try {
+      const result = await fetchRsvps();
+      if (result.success && result.rsvps) {
+        setSubmittedRsvps(result.rsvps);
+      } else {
+        setFetchError(result.error || "Failed to load RSVPs.");
+        toast({
+          title: "Error Loading Responses",
+          description: result.error || "Could not fetch submitted RSVPs. Please ensure Firestore is set up correctly and security rules allow reads.",
+          variant: "destructive",
+        });
+      }
+    } catch (e) {
+        const error = e as Error;
+        setFetchError(error.message || "An unexpected error occurred while fetching RSVPs.");
+        toast({
+          title: "Error Loading Responses",
+          description: error.message || "An unexpected error occurred.",
+          variant: "destructive",
+        });
+    } finally {
+        if (isManualRefresh) {
+          setIsRefreshing(false);
+        } else {
+          setIsLoadingRsvps(false);
+        }
+    }
   };
 
   useEffect(() => {
-    loadRsvps();
+    startTransition(() => {
+      loadRsvps();
+    });
   // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   useEffect(() => {
-    if (formState.message) {
+    if (formState.message && (formState.success || formState.errors)) { // Check for errors to ensure toast appears for validation messages too
       toast({
         title: formState.success ? "RSVP Submitted!" : "Oops!",
         description: formState.message,
         variant: formState.success ? "default" : "destructive",
       });
       if (formState.success) {
-        loadRsvps(); // Re-fetch RSVPs after successful submission
+        startTransition(() => {
+          loadRsvps(); 
+        });
       }
     }
   }, [formState, toast]);
@@ -103,17 +123,17 @@ const RsvpSection: React.FC = () => {
                 Please let us know if you can make it by November 20, 2025.
               </CardDescription>
             </CardHeader>
-            <form action={formAction} key={formState.success ? Date.now().toString() : 'form-initial'}> {/* Reset form on success */}
+            <form action={formAction} key={formState.success ? Date.now().toString() : 'form-initial'}>
               <CardContent className="space-y-5">
                 <div className="space-y-1.5">
                   <Label htmlFor="fullName" className="font-body text-sm text-foreground">Full Name</Label>
                   <Input id="fullName" name="fullName" placeholder="Your full name" required className="font-body"/>
-                  {formState.errors?.fullName && <p className="text-xs text-destructive font-body">{formState.errors.fullName.join(", ")}</p>}
+                  {formState.errors?.fullName && <p className="text-xs text-destructive font-body pt-1">{formState.errors.fullName.join(", ")}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                   <Label className="font-body text-sm text-foreground">Are you attending?</Label>
-                  <RadioGroup name="attending" defaultValue="yes" className="flex flex-col space-y-2 font-body text-sm">
+                  <RadioGroup name="attending" defaultValue="yes" className="flex flex-col space-y-2 font-body text-sm pt-1">
                     <div className="flex items-center space-x-2">
                       <RadioGroupItem value="yes" id="attending-yes" />
                       <Label htmlFor="attending-yes" className="font-normal">Yes, with pleasure!</Label>
@@ -123,15 +143,15 @@ const RsvpSection: React.FC = () => {
                       <Label htmlFor="attending-no" className="font-normal">No, with regrets</Label>
                     </div>
                   </RadioGroup>
-                  {formState.errors?.attending && <p className="text-xs text-destructive font-body">{formState.errors.attending.join(", ")}</p>}
+                  {formState.errors?.attending && <p className="text-xs text-destructive font-body pt-1">{formState.errors.attending.join(", ")}</p>}
                 </div>
 
                 <div className="space-y-1.5">
                   <Label htmlFor="message" className="font-body text-sm text-foreground">Message / Wishes (Optional)</Label>
                   <Textarea id="message" name="message" placeholder="Leave a message for the couple..." rows={3} className="font-body"/>
-                  {formState.errors?.message && <p className="text-xs text-destructive font-body">{formState.errors.message.join(", ")}</p>}
+                  {formState.errors?.message && <p className="text-xs text-destructive font-body pt-1">{formState.errors.message.join(", ")}</p>}
                 </div>
-                {formState.errors?._form && <p className="text-xs text-destructive font-body">{formState.errors._form.join(", ")}</p>}
+                {formState.errors?._form && <p className="text-xs text-destructive font-body pt-1">{formState.errors._form.join(", ")}</p>}
               </CardContent>
               <CardFooter className="pb-6">
                 <SubmitButton />
@@ -147,11 +167,18 @@ const RsvpSection: React.FC = () => {
           transition={{ duration: 0.5, delay: 0.2, ease: "easeOut" }}
           className="max-w-lg mx-auto mt-12"
         >
-          <h3 className="font-headline text-2xl text-primary-foreground text-center mb-6 flex items-center justify-center">
-            <ListChecks className="mr-3 h-6 w-6 text-primary" />
-            Submitted Responses
-          </h3>
-          {isLoadingRsvps && (
+          <div className="flex items-center justify-between mb-6">
+            <h3 className="font-headline text-2xl text-primary-foreground flex items-center">
+              <ListChecks className="mr-3 h-6 w-6 text-primary" />
+              Submitted Responses
+            </h3>
+            <Button variant="outline" size="sm" onClick={() => loadRsvps(true)} disabled={isRefreshing || isLoadingRsvps} className="rounded-full">
+              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+              <span className="ml-2 sr-only sm:not-sr-only">Refresh</span>
+            </Button>
+          </div>
+
+          {isLoadingRsvps && !isRefreshing && (
             <div className="space-y-3">
               {[1, 2].map(i => (
                 <Card key={i} className="p-4 bg-card rounded-lg shadow animate-pulse">
@@ -163,11 +190,11 @@ const RsvpSection: React.FC = () => {
             </div>
           )}
           {!isLoadingRsvps && fetchError && (
-             <Alert variant="destructive" className="bg-destructive/10">
-              <Info className="h-4 w-4" />
+             <Alert variant="destructive" className="bg-destructive/10 border-destructive/50">
+              <Info className="h-4 w-4 text-destructive" />
               <AlertTitle>Error Loading Responses</AlertTitle>
               <AlertDescription>
-                {fetchError} Please check your Firebase setup and security rules.
+                {fetchError}
               </AlertDescription>
             </Alert>
           )}
@@ -183,11 +210,11 @@ const RsvpSection: React.FC = () => {
                   <CardHeader className="p-0 mb-2 flex flex-row justify-between items-start">
                     <CardTitle className="font-headline text-lg text-accent-foreground">{rsvp.fullName}</CardTitle>
                     {rsvp.attending === "yes" ? (
-                       <span className="text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded-full bg-green-100 text-green-800 border border-green-300">
+                       <span className="text-xs font-medium inline-flex items-center px-2 py-0.5 rounded-full bg-green-100 text-green-800 border border-green-300">
                          <CheckCircle className="w-3.5 h-3.5 mr-1.5 text-green-600" /> Attending
                        </span>
                     ) : (
-                      <span className="text-xs font-medium inline-flex items-center px-2.5 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-300">
+                      <span className="text-xs font-medium inline-flex items-center px-2 py-0.5 rounded-full bg-red-100 text-red-800 border border-red-300">
                         <XCircle className="w-3.5 h-3.5 mr-1.5 text-red-600" /> Not Attending
                       </span>
                     )}
