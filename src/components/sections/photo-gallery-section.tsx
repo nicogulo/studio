@@ -31,7 +31,7 @@ const PhotoGallerySection: React.FC = () => {
   const [isMounted, setIsMounted] = useState(false);
 
   useEffect(() => {
-    setIsMounted(true); // Ensures animations only run client-side
+    setIsMounted(true); 
   }, []);
 
   const openLightbox = (src: string, alt: string) => {
@@ -44,25 +44,37 @@ const PhotoGallerySection: React.FC = () => {
     setLightboxAlt("");
   };
 
-  const DURATION_BASE = 50; // seconds for a full scroll loop
-  const DURATION_VARIATION = 15; // seconds
+  const DURATION_BASE = 50; 
+  const DURATION_VARIATION = 15;
 
   const getColumnPhotos = (columnIndex: number, numCols: number): GalleryPhoto[] => {
     return allGalleryPhotos.filter((_, i) => i % numCols === columnIndex);
   };
   
-  // Duplicate photos for seamless looping
-  const createLoopedPhotos = (photos: GalleryPhoto[]) => [...photos, ...photos];
+  const createLoopedPhotos = (photos: GalleryPhoto[]) => {
+    if (photos.length === 0) return [];
+    // Ensure enough photos for a smooth loop, especially if original list is very short
+    const minPhotosForLoop = 6; 
+    let looped = [...photos];
+    while(looped.length < minPhotosForLoop && photos.length > 0) {
+      looped = [...looped, ...photos];
+    }
+    return [...looped, ...looped]; // Duplicate the (potentially extended) list for looping
+  }
+
 
   const renderColumn = (photos: GalleryPhoto[], scrollDirection: "up" | "down", keyPrefix: string) => {
     if (!isMounted || photos.length === 0) return null;
     
     const loopedPhotos = createLoopedPhotos(photos);
-    const uniqueKey = `${keyPrefix}-${scrollDirection}`;
+    const uniqueKey = `${keyPrefix}-${scrollDirection}-${isMounted}`; // Add isMounted to key
     const randomDurationOffset = Math.random() * DURATION_VARIATION;
 
     return (
-      <div className="flex-1 overflow-hidden h-[70vh] sm:h-[75vh]">
+      <div className="relative flex-1 overflow-hidden h-[70vh] sm:h-[75vh]">
+        {/* Top fade overlay */}
+        <div className="absolute top-0 left-0 right-0 h-20 sm:h-24 bg-gradient-to-b from-background to-transparent z-10 pointer-events-none" />
+        
         <motion.div
           className="flex flex-col gap-3"
           animate={{ y: scrollDirection === "up" ? ["0%", "-50%"] : ["-50%", "0%"] }}
@@ -72,11 +84,11 @@ const PhotoGallerySection: React.FC = () => {
             repeat: Infinity,
             repeatType: "loop",
           }}
-          key={uniqueKey}
+          key={uniqueKey} 
         >
           {loopedPhotos.map((photo, index) => (
             <Card
-              key={`${photo.src}-${index}`}
+              key={`${photo.src}-${index}-${keyPrefix}`}
               className={`${photo.aspect} overflow-hidden shadow-md hover:shadow-xl transition-shadow duration-300 bg-card rounded-lg w-full cursor-pointer group`}
               onClick={() => openLightbox(photo.src, photo.alt)}
               aria-label={`View image: ${photo.alt}`}
@@ -89,13 +101,16 @@ const PhotoGallerySection: React.FC = () => {
                   sizes="(max-width: 639px) 45vw, (max-width: 1023px) 30vw, 20vw"
                   className="object-cover group-hover:scale-105 transition-transform duration-300 rounded-lg"
                   data-ai-hint={photo.hint}
-                  priority={index < 2 && (keyPrefix.includes("col0") || keyPrefix.includes("col1"))} // Prioritize first few images in first visible columns
+                  priority={index < 2 && (keyPrefix.includes("col0") || keyPrefix.includes("col1"))} 
                 />
                 <div className="absolute inset-0 bg-black/5 group-hover:bg-black/0 transition-colors duration-300 rounded-lg" />
               </CardContent>
             </Card>
           ))}
         </motion.div>
+
+        {/* Bottom fade overlay */}
+        <div className="absolute bottom-0 left-0 right-0 h-20 sm:h-24 bg-gradient-to-t from-background to-transparent z-10 pointer-events-none" />
       </div>
     );
   };
@@ -114,17 +129,25 @@ const PhotoGallerySection: React.FC = () => {
           Captured Moments
         </motion.h2>
 
-        {/* Mobile: 2 Columns */}
-        <div className="flex sm:hidden gap-3">
-          {renderColumn(getColumnPhotos(0, 2), "up", "mobile-col0")}
-          {renderColumn(getColumnPhotos(1, 2), "down", "mobile-col1")}
-        </div>
+        <div className="flex gap-3">
+          {/* Mobile: 2 Columns */}
+          <div className="flex sm:hidden w-1/2">
+            {renderColumn(getColumnPhotos(0, 2), "up", "mobile-col0")}
+          </div>
+          <div className="flex sm:hidden w-1/2">
+            {renderColumn(getColumnPhotos(1, 2), "down", "mobile-col1")}
+          </div>
 
-        {/* Desktop: 3 Columns */}
-        <div className="hidden sm:flex gap-3">
-          {renderColumn(getColumnPhotos(0, 3), "up", "desktop-col0")}
-          {renderColumn(getColumnPhotos(1, 3), "down", "desktop-col1")}
-          {renderColumn(getColumnPhotos(2, 3), "up", "desktop-col2")}
+          {/* Desktop: 3 Columns */}
+          <div className="hidden sm:flex w-1/3">
+            {renderColumn(getColumnPhotos(0, 3), "up", "desktop-col0")}
+          </div>
+          <div className="hidden sm:flex w-1/3">
+            {renderColumn(getColumnPhotos(1, 3), "down", "desktop-col1")}
+          </div>
+          <div className="hidden sm:flex w-1/3">
+            {renderColumn(getColumnPhotos(2, 3), "up", "desktop-col2")}
+          </div>
         </div>
       </div>
       <Lightbox imageUrl={lightboxImage} altText={lightboxAlt} onClose={closeLightbox} />
@@ -133,3 +156,5 @@ const PhotoGallerySection: React.FC = () => {
 };
 
 export default PhotoGallerySection;
+
+    
