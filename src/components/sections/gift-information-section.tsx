@@ -28,7 +28,7 @@ const GiftInformationSection: React.FC = () => {
 
         <FloralDivider className="mb-12" />
 
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+        <div className="grid grid-cols-1 gap-8 max-w-2xl mx-auto"> {/* Changed md:grid-cols-2 to grid-cols-1 and adjusted max-w */}
           {/* Card for Physical Gifts */}
           <motion.div
             initial={{ opacity: 0, y: 30, scale: 0.95 }}
@@ -131,3 +131,4 @@ const GiftInformationSection: React.FC = () => {
 };
 
 export default GiftInformationSection;
+
