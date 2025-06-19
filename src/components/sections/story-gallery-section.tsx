@@ -33,7 +33,7 @@ const galleryItems = [
     hint: "happy couple"
   },
   {
-    src: "https://images.unsplash.com/photo-1655490162630-175929877280?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb3VwbGUlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3NTAyNjc2Nzl8MA&ixlibrb-4.1.0&q=80&w=1080",
+    src: "https://images.unsplash.com/photo-1655490162630-175929877280?crop=entropy&cs=tinysrgb&fit=max&fm=jpg&ixid=M3w3NDE5ODJ8MHwxfHNlYXJjaHwxfHxjb3VwbGUlMjBjZWxlYnJhdGlvbnxlbnwwfHx8fDE3NTAyNjc2Nzl8MA&ixlib.rb-4.1.0&q=80&w=1080",
     alt: "Celebrating an anniversary together",
     caption: "Milestones",
     hint: "couple celebration"
@@ -127,14 +127,14 @@ const StoryGallerySection: React.FC = () => {
                     <svg
                       viewBox="0 0 50 100"
                       className={`w-16 h-32 md:w-20 md:h-40 lg:w-24 lg:h-48 fill-current text-primary/20 ${
-                        // More varied transformations
                         index % 4 === 0 ? 'transform -rotate-[12deg]' :
                         index % 4 === 1 ? 'transform rotate-[12deg] scale-x-[-1]' :
                         index % 4 === 2 ? 'transform rotate-[8deg]' :
                                           'transform -rotate-[8deg] scale-x-[-1]'
                       }`}
                     >
-                      <path d="M25 0 C25 0 10 20 10 50 C10 80 25 100 25 100 C25 100 40 80 40 50 C40 20 25 0 25 0 Z M25 10 C30 25 30 75 25 90 C20 75 20 25 25 10 Z" />
+                      {/* New, safer SVG path */}
+                      <path d="M25,5 L10,40 C15,70 25,95 25,95 C25,95 35,70 40,40 L25,5 Z" />
                     </svg>
                   </motion.div>
                 </div>
