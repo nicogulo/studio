@@ -81,13 +81,13 @@ const StoryGallerySection: React.FC = () => {
           ></div>
 
           {galleryItems.map((item, index) => (
-            <motion.div // Animate each story point
+            <motion.div 
               key={index}
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true, amount: 0.1 }}
               transition={{ duration: 0.6, delay: index * 0.15, ease: "easeOut" }}
-              className="mb-12 sm:mb-16" // Each story point container
+              className="mb-12 sm:mb-16" 
             >
               <div className={`flex flex-col sm:items-stretch ${index % 2 !== 0 ? 'sm:flex-row-reverse' : 'sm:flex-row'}`}>
                 {/* Image Card Wrapper */}
@@ -109,8 +109,8 @@ const StoryGallerySection: React.FC = () => {
                       />
                       <div className="absolute inset-0 bg-black/10 group-hover:bg-black/0 transition-colors duration-300 rounded-t-lg" />
                     </CardContent>
-                    <CardFooter className="p-3 bg-card-foreground/5 mt-auto">
-                      <p className="text-xs font-body text-muted-foreground text-center w-full">{item.caption}</p>
+                    <CardFooter className="p-4 bg-card-foreground/5 mt-auto">
+                      <p className="font-headline text-sm text-accent-foreground text-center w-full">{item.caption}</p>
                     </CardFooter>
                   </Card>
                 </div>
