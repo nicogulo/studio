@@ -1,7 +1,8 @@
+
 "use client";
 
 import Image from "next/image";
-import { X } from "lucide-react";
+import { X, Download } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 
 interface LightboxProps {
@@ -12,6 +13,11 @@ interface LightboxProps {
 
 const Lightbox: React.FC<LightboxProps> = ({ imageUrl, altText, onClose }) => {
   if (!imageUrl) return null;
+
+  const handleDownload = (e: React.MouseEvent<HTMLAnchorElement>) => {
+    // Allow default download behavior
+    e.stopPropagation(); // Prevent closing lightbox if download button is inside the clickable area
+  };
 
   return (
     <AnimatePresence>
@@ -27,11 +33,11 @@ const Lightbox: React.FC<LightboxProps> = ({ imageUrl, altText, onClose }) => {
           aria-labelledby="lightbox-image"
         >
           <motion.div
-            initial={{ scale: 0.85, opacity: 0 }} // Adjusted initial scale
+            initial={{ scale: 0.85, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.85, opacity: 0 }}
-            transition={{ type: "spring", stiffness: 260, damping: 25 }} // Adjusted spring
-            className="relative max-w-3xl max-h-[90vh] bg-background rounded-lg shadow-2xl overflow-hidden" // Ensure rounded-lg
+            transition={{ type: "spring", stiffness: 260, damping: 25 }}
+            className="relative max-w-3xl max-h-[90vh] bg-background rounded-lg shadow-2xl overflow-hidden"
             onClick={(e) => e.stopPropagation()}
           >
             <Image
@@ -40,16 +46,27 @@ const Lightbox: React.FC<LightboxProps> = ({ imageUrl, altText, onClose }) => {
               alt={altText}
               width={1200}
               height={800}
-              className="object-contain w-full h-full max-h-[80vh] rounded-lg" // Added rounded-lg to image itself
+              className="object-contain w-full h-full max-h-[80vh] rounded-lg"
               data-ai-hint="couple photo"
             />
-            <button
-              onClick={onClose}
-              className="absolute top-3 right-3 p-2 text-foreground bg-background/60 hover:bg-background/90 rounded-full transition-colors" // Adjusted colors for better theme fit
-              aria-label="Close lightbox"
-            >
-              <X size={24} />
-            </button>
+            <div className="absolute top-3 right-3 flex space-x-2">
+              <a
+                href={imageUrl}
+                download
+                onClick={handleDownload}
+                className="p-2 text-foreground bg-background/60 hover:bg-background/90 rounded-full transition-colors"
+                aria-label="Download image"
+              >
+                <Download size={24} />
+              </a>
+              <button
+                onClick={onClose}
+                className="p-2 text-foreground bg-background/60 hover:bg-background/90 rounded-full transition-colors"
+                aria-label="Close lightbox"
+              >
+                <X size={24} />
+              </button>
+            </div>
           </motion.div>
         </motion.div>
       )}

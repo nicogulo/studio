@@ -117,7 +117,7 @@ const PhotoGallerySection: React.FC = () => {
 
 
   return (
-    <section id="photo-gallery" className="py-16 bg-secondary/10">
+    <section id="photo-gallery" className="py-16">
       <div className="container mx-auto px-4">
         <motion.h2
           initial={{ opacity: 0, y: 20 }}
