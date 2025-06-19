@@ -24,10 +24,10 @@ export interface RsvpFormState {
   };
 }
 
-const coupleIdentifier = "nico-trio";
+const coupleIdentifier = process.env.NEXT_PUBLIC_COUPLE_IDENTIFIER || "nico-trio";
 
 const firebaseConfigForLogging = {
-  apiKey: "AIzaSyBChVpmxy_g1JfuZrd3NgwJmcieizdiUuM",
+  apiKey: "AIzaSyBChVpmxy_g1JfuZrd3NgwJmcieizdiUuM", // This is just for logging reference, actual connection uses src/lib/firebase.ts
   authDomain: "nico-trio.firebaseapp.com",
   projectId: "nico-trio",
   storageBucket: "nico-trio.appspot.com",
@@ -57,6 +57,7 @@ export async function handleRsvpSubmit(
   }
 
   try {
+    console.log(`Submitting RSVP for couple: ${coupleIdentifier}`);
     const rsvpCollectionRef = collection(firestore, "global", "reservation", coupleIdentifier);
 
     await addDoc(rsvpCollectionRef, {
@@ -65,7 +66,7 @@ export async function handleRsvpSubmit(
     });
     return { success: true, message: "Thank you for your RSVP!" };
   } catch (error: any) {
-    console.error("Error saving RSVP to Firestore:", error);
+    console.error(`Error saving RSVP to Firestore for ${coupleIdentifier}:`, error);
     let specificMessage = "An error occurred while submitting your RSVP. Please try again.";
     if (error.code) {
       console.error("Firestore Error Code:", error.code);
@@ -74,7 +75,7 @@ export async function handleRsvpSubmit(
     if (error.message) {
       console.error("Firestore Error Message (full):", error.message);
     }
-    specificMessage += ` Ensure Firebase project '${firebaseConfigForLogging.projectId}' is set up, Firestore is enabled, and security rules allow writing to 'global/reservation/${coupleIdentifier}'. Verify your API key and other Firebase config values in src/lib/firebase.ts.`;
+    specificMessage += ` Ensure Firebase project '${firebaseConfigForLogging.projectId}' is set up, Firestore is enabled, and security rules allow writing to 'global/reservation/${coupleIdentifier}'. Verify your API key and other Firebase config values in src/lib/firebase.ts. Current couple identifier being used: ${coupleIdentifier}.`;
 
     return {
       success: false,
@@ -112,7 +113,7 @@ export async function fetchRsvps(
   lastKnownDocTimestampForPaginationInput: SerializableTimestamp | null = null,
   limitNum: number = RSVP_PAGE_SIZE
 ): Promise<FetchRsvpsResult> {
-  console.log("--- fetchRsvps called ---");
+  console.log(`--- fetchRsvps called for couple: ${coupleIdentifier} ---`);
   console.log("Input cursor (from client):", lastKnownDocTimestampForPaginationInput);
   console.log("Limit number:", limitNum);
 
@@ -140,7 +141,7 @@ export async function fetchRsvps(
 
     const querySnapshot = await getDocs(q);
     const docs = querySnapshot.docs;
-    console.log(`Fetched ${docs.length} documents from Firestore.`);
+    console.log(`Fetched ${docs.length} documents from Firestore for ${coupleIdentifier}.`);
 
     const hasMore = docs.length > limitNum;
     const rsvpsToReturnDocs = docs.slice(0, limitNum);
@@ -181,7 +182,7 @@ export async function fetchRsvps(
       hasMore
     };
   } catch (error: any) {
-    console.error("Error fetching RSVPs from Firestore:", error);
+    console.error(`Error fetching RSVPs from Firestore for ${coupleIdentifier}:`, error);
     let specificMessage = "Could not fetch submitted RSVPs.";
      if (error.code) {
       console.error("Firestore Error Code:", error.code);
@@ -190,7 +191,7 @@ export async function fetchRsvps(
     if (error.message) {
       console.error("Firestore Error Message (full):", error.message);
     }
-    specificMessage += ` Ensure security rules allow reading from 'global/reservation/${coupleIdentifier}'.`;
+    specificMessage += ` Ensure security rules allow reading from 'global/reservation/${coupleIdentifier}'. Current couple identifier: ${coupleIdentifier}.`;
     return { success: false, error: specificMessage, hasMore: false };
   }
 }
