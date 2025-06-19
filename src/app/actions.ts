@@ -2,7 +2,7 @@
 "use server";
 
 import { firestore } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, Timestamp } from "firebase/firestore";
+import { collection, addDoc, serverTimestamp, getDocs, query, orderBy, Timestamp, limit, startAfter, DocumentData, QueryDocumentSnapshot } from "firebase/firestore";
 import { z } from "zod";
 import { format } from 'date-fns';
 
@@ -24,9 +24,8 @@ export interface RsvpFormState {
   };
 }
 
-const coupleIdentifier = "nico-trio"; // This should match the subcollection name for the couple
+const coupleIdentifier = "nico-trio"; 
 
-// Firebase config for logging purposes, ensure this is the correct one for your project
 const firebaseConfigForLogging = {
   apiKey: "AIzaSyBChVpmxy_g1JfuZrd3NgwJmcieizdiUuM",
   authDomain: "nico-trio.firebaseapp.com",
@@ -85,27 +84,48 @@ export async function handleRsvpSubmit(
   }
 }
 
-export interface SubmittedRsvpData {
+export interface FormattedSubmittedRsvpData {
   id: string;
   fullName: string;
   attending: "yes" | "no";
   message?: string;
-  submittedAt: string; // Store as string after formatting
+  submittedAtFormatted: string; 
 }
 
-export interface FetchRsvpsState {
+export interface FetchRsvpsResult {
   success: boolean;
-  rsvps?: SubmittedRsvpData[];
+  rsvps?: FormattedSubmittedRsvpData[];
   error?: string;
+  lastDocTimestampForPagination?: Timestamp | null; 
+  hasMore: boolean;
 }
 
-export async function fetchRsvps(): Promise<FetchRsvpsState> {
+export async function fetchRsvps(
+  lastKnownDocTimestamp: Timestamp | null = null,
+  limitNum: number = 5
+): Promise<FetchRsvpsResult> {
   try {
     const rsvpCollectionRef = collection(firestore, "global", "reservation", coupleIdentifier);
-    const q = query(rsvpCollectionRef, orderBy("submittedAt", "desc"));
-    const querySnapshot = await getDocs(q);
     
-    const rsvps = querySnapshot.docs.map(doc => {
+    const queryConstraints = [
+        orderBy("submittedAt", "desc"), 
+        limit(limitNum + 1) // Fetch one extra to check if there's more
+    ];
+
+    let q;
+    if (lastKnownDocTimestamp) {
+      q = query(rsvpCollectionRef, ...queryConstraints, startAfter(lastKnownDocTimestamp));
+    } else {
+      q = query(rsvpCollectionRef, ...queryConstraints);
+    }
+    
+    const querySnapshot = await getDocs(q);
+    const docs = querySnapshot.docs;
+
+    const hasMore = docs.length > limitNum;
+    const rsvpsToReturn = docs.slice(0, limitNum);
+
+    const rsvps: FormattedSubmittedRsvpData[] = rsvpsToReturn.map((doc: QueryDocumentSnapshot<DocumentData>) => {
       const data = doc.data();
       const submittedAtTimestamp = data.submittedAt as Timestamp | null;
       return {
@@ -113,11 +133,20 @@ export async function fetchRsvps(): Promise<FetchRsvpsState> {
         fullName: data.fullName,
         attending: data.attending,
         message: data.message || "",
-        submittedAt: submittedAtTimestamp ? format(submittedAtTimestamp.toDate(), "MMMM d, yyyy 'at' h:mm a") : "Date not available",
-      } as SubmittedRsvpData;
+        submittedAtFormatted: submittedAtTimestamp ? format(submittedAtTimestamp.toDate(), "MMMM d, yyyy 'at' h:mm a") : "Date not available",
+      };
     });
     
-    return { success: true, rsvps };
+    const newLastDocTimestampForPagination = rsvpsToReturn.length > 0 
+      ? rsvpsToReturn[rsvpsToReturn.length - 1].data().submittedAt as Timestamp
+      : null;
+    
+    return { 
+      success: true, 
+      rsvps, 
+      lastDocTimestampForPagination: newLastDocTimestampForPagination, 
+      hasMore 
+    };
   } catch (error: any) {
     console.error("Error fetching RSVPs from Firestore:", error);
     let specificMessage = "Could not fetch submitted RSVPs.";
@@ -129,7 +158,7 @@ export async function fetchRsvps(): Promise<FetchRsvpsState> {
       console.error("Firestore Error Message (full):", error.message);
     }
     specificMessage += ` Ensure security rules allow reading from 'global/reservation/${coupleIdentifier}'.`;
-    return { success: false, error: specificMessage };
+    return { success: false, error: specificMessage, hasMore: false };
   }
 }
 

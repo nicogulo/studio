@@ -1,8 +1,9 @@
 
 "use client";
 
-import { useEffect, useState, useActionState, startTransition } from "react";
+import { useEffect, useState, useActionState, startTransition, useRef, useCallback } from "react";
 import { useFormStatus } from "react-dom";
+import type { Timestamp } from "firebase/firestore";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -11,7 +12,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Alert, AlertDescription, AlertTitle } from "@/components/ui/alert";
 import { useToast } from "@/hooks/use-toast";
-import { handleRsvpSubmit, RsvpFormState, fetchRsvps, SubmittedRsvpData, FetchRsvpsState } from "@/app/actions";
+import { handleRsvpSubmit, RsvpFormState, fetchRsvps, FormattedSubmittedRsvpData, FetchRsvpsResult } from "@/app/actions";
 import { motion } from "framer-motion";
 import { Send, Loader2, ListChecks, Info, CheckCircle, XCircle, RefreshCw } from "lucide-react";
 
@@ -19,6 +20,8 @@ const initialRsvpFormState: RsvpFormState = {
   success: false,
   message: "",
 };
+
+const PAGE_SIZE = 5;
 
 function SubmitButton() {
   const { pending } = useFormStatus();
@@ -33,28 +36,39 @@ function SubmitButton() {
 const RsvpSection: React.FC = () => {
   const [formState, formAction, isFormPending] = useActionState(handleRsvpSubmit, initialRsvpFormState);
   const { toast } = useToast();
-  const [submittedRsvps, setSubmittedRsvps] = useState<SubmittedRsvpData[]>([]);
-  const [fetchError, setFetchError] = useState<string | null>(null);
-  const [isLoadingRsvps, setIsLoadingRsvps] = useState(true);
-  const [isRefreshing, setIsRefreshing] = useState(false);
 
-  const loadRsvps = async (isManualRefresh = false) => {
-    if (isManualRefresh) {
-      setIsRefreshing(true);
+  const [rsvps, setRsvps] = useState<FormattedSubmittedRsvpData[]>([]);
+  const [lastFetchedDocTimestamp, setLastFetchedDocTimestamp] = useState<Timestamp | null>(null);
+  const [hasMoreRsvps, setHasMoreRsvps] = useState(true);
+  const [isLoadingInitial, setIsLoadingInitial] = useState(true);
+  const [isLoadingMore, setIsLoadingMore] = useState(false);
+  const [fetchError, setFetchError] = useState<string | null>(null);
+  
+  const sentinelRef = useRef<HTMLDivElement>(null);
+
+  const loadRsvps = useCallback(async (isLoadMore = false) => {
+    if (isLoadMore) {
+      if (!hasMoreRsvps || isLoadingMore) return;
+      setIsLoadingMore(true);
     } else {
-      setIsLoadingRsvps(true);
+      setIsLoadingInitial(true);
+      setRsvps([]); 
+      setLastFetchedDocTimestamp(null);
+      setHasMoreRsvps(true); 
     }
     setFetchError(null);
     
     try {
-      const result = await fetchRsvps();
+      const result = await fetchRsvps(isLoadMore ? lastFetchedDocTimestamp : null, PAGE_SIZE);
       if (result.success && result.rsvps) {
-        setSubmittedRsvps(result.rsvps);
+        setRsvps(prevRsvps => isLoadMore ? [...prevRsvps, ...result.rsvps!] : result.rsvps!);
+        setLastFetchedDocTimestamp(result.lastDocTimestampForPagination || null);
+        setHasMoreRsvps(result.hasMore);
       } else {
         setFetchError(result.error || "Failed to load RSVPs.");
         toast({
           title: "Error Loading Responses",
-          description: result.error || "Could not fetch submitted RSVPs. Please ensure Firestore is set up correctly and security rules allow reads.",
+          description: result.error || "Could not fetch submitted RSVPs.",
           variant: "destructive",
         });
       }
@@ -67,35 +81,61 @@ const RsvpSection: React.FC = () => {
           variant: "destructive",
         });
     } finally {
-        if (isManualRefresh) {
-          setIsRefreshing(false);
+        if (isLoadMore) {
+          setIsLoadingMore(false);
         } else {
-          setIsLoadingRsvps(false);
+          setIsLoadingInitial(false);
         }
     }
-  };
+  }, [lastFetchedDocTimestamp, hasMoreRsvps, isLoadingMore, toast]);
+
 
   useEffect(() => {
     startTransition(() => {
-      loadRsvps();
+      loadRsvps(false); // Initial load
     });
-  // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [loadRsvps]);
+
 
   useEffect(() => {
-    if (formState.message && (formState.success || formState.errors)) { // Check for errors to ensure toast appears for validation messages too
+    if (formState.success) {
       toast({
-        title: formState.success ? "RSVP Submitted!" : "Oops!",
+        title: "RSVP Submitted!",
         description: formState.message,
-        variant: formState.success ? "default" : "destructive",
+        variant: "default",
       });
-      if (formState.success) {
-        startTransition(() => {
-          loadRsvps(); 
-        });
-      }
+      startTransition(() => {
+        loadRsvps(false); // Refresh the list from the beginning
+      });
+    } else if (formState.message && (formState.errors || formState.message.startsWith("An error occurred"))) {
+       toast({
+        title: "Oops!",
+        description: formState.message,
+        variant: "destructive",
+      });
     }
-  }, [formState, toast]);
+  }, [formState, toast, loadRsvps]);
+
+  useEffect(() => {
+    const currentSentinel = sentinelRef.current;
+    if (!currentSentinel) return;
+
+    const observer = new IntersectionObserver(
+      entries => {
+        if (entries[0].isIntersecting && hasMoreRsvps && !isLoadingMore && !isLoadingInitial) {
+          startTransition(() => {
+            loadRsvps(true);
+          });
+        }
+      },
+      { threshold: 0.1 } 
+    );
+
+    observer.observe(currentSentinel);
+    return () => {
+      observer.unobserve(currentSentinel);
+    };
+  }, [hasMoreRsvps, isLoadingMore, isLoadingInitial, loadRsvps]);
   
   return (
     <section id="rsvp" className="py-16 bg-secondary/20">
@@ -172,13 +212,13 @@ const RsvpSection: React.FC = () => {
               <ListChecks className="mr-3 h-6 w-6 text-primary" />
               Submitted Responses
             </h3>
-            <Button variant="outline" size="sm" onClick={() => loadRsvps(true)} disabled={isRefreshing || isLoadingRsvps} className="rounded-full">
-              <RefreshCw className={`h-4 w-4 ${isRefreshing ? 'animate-spin' : ''}`} />
+            <Button variant="outline" size="sm" onClick={() => loadRsvps(false)} disabled={isLoadingInitial || isLoadingMore} className="rounded-full">
+              <RefreshCw className={`h-4 w-4 ${(isLoadingInitial && !isLoadingMore) ? 'animate-spin' : ''}`} />
               <span className="ml-2 sr-only sm:not-sr-only">Refresh</span>
             </Button>
           </div>
 
-          {isLoadingRsvps && !isRefreshing && (
+          {isLoadingInitial && rsvps.length === 0 && (
             <div className="space-y-3">
               {[1, 2].map(i => (
                 <Card key={i} className="p-4 bg-card rounded-lg shadow animate-pulse">
@@ -189,7 +229,7 @@ const RsvpSection: React.FC = () => {
               ))}
             </div>
           )}
-          {!isLoadingRsvps && fetchError && (
+          {!isLoadingInitial && fetchError && (
              <Alert variant="destructive" className="bg-destructive/10 border-destructive/50">
               <Info className="h-4 w-4 text-destructive" />
               <AlertTitle>Error Loading Responses</AlertTitle>
@@ -198,14 +238,15 @@ const RsvpSection: React.FC = () => {
               </AlertDescription>
             </Alert>
           )}
-          {!isLoadingRsvps && !fetchError && submittedRsvps.length === 0 && (
+          {!isLoadingInitial && !fetchError && rsvps.length === 0 && (
             <Card className="p-6 bg-card rounded-lg shadow">
               <p className="text-center text-muted-foreground font-body">No RSVPs submitted yet. Be the first!</p>
             </Card>
           )}
-          {!isLoadingRsvps && !fetchError && submittedRsvps.length > 0 && (
+          
+          {rsvps.length > 0 && (
             <div className="space-y-4">
-              {submittedRsvps.map((rsvp) => (
+              {rsvps.map((rsvp) => (
                 <Card key={rsvp.id} className="p-4 bg-card rounded-lg shadow-md hover:shadow-lg transition-shadow">
                   <CardHeader className="p-0 mb-2 flex flex-row justify-between items-start">
                     <CardTitle className="font-headline text-lg text-accent-foreground">{rsvp.fullName}</CardTitle>
@@ -223,12 +264,26 @@ const RsvpSection: React.FC = () => {
                     {rsvp.message && (
                       <p className="font-body text-sm text-foreground italic mb-1">"{rsvp.message}"</p>
                     )}
-                    <p className="font-body text-xs text-muted-foreground">Submitted: {rsvp.submittedAt}</p>
+                    <p className="font-body text-xs text-muted-foreground">Submitted: {rsvp.submittedAtFormatted}</p>
                   </CardContent>
                 </Card>
               ))}
             </div>
           )}
+
+          <div ref={sentinelRef} className="h-10" /> 
+
+          {isLoadingMore && (
+            <div className="flex justify-center items-center py-4">
+              <Loader2 className="h-6 w-6 text-primary animate-spin" />
+              <p className="ml-2 font-body text-muted-foreground">Loading more...</p>
+            </div>
+          )}
+
+          {!isLoadingInitial && !isLoadingMore && !hasMoreRsvps && rsvps.length > 0 && (
+            <p className="text-center font-body text-sm text-muted-foreground py-4">No more responses to show.</p>
+          )}
+
         </motion.div>
 
       </div>
