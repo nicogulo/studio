@@ -9,20 +9,13 @@ interface HeroSectionProps {
   onUnlockScrollAndNavigate: () => void;
 }
 
-const HeroSection: React.FC<HeroSectionProps> = ({ onUnlockScrollAndNavigate }) => {
+const HeroSection: React.FC<HeroSectionProps> = ({ 
+  onUnlockScrollAndNavigate 
+}) => {
   
   const handleCTAInteraction = () => {
     onUnlockScrollAndNavigate();
-
-    // Scroll to the Thanksgiving section
-    requestAnimationFrame(() => { 
-      setTimeout(() => {
-        const targetSection = document.getElementById("thanksgiving");
-        if (targetSection) {
-          targetSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
-      }, 100); 
-    });
+    // The actual scroll logic and music play request are now handled by onUnlockScrollAndNavigate in HomePage
   };
 
   return (
