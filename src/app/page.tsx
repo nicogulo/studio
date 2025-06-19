@@ -13,10 +13,10 @@ import GiftInformationSection from "@/components/sections/gift-information-secti
 import RsvpSection from "@/components/sections/rsvp-section";
 import FooterSection from "@/components/sections/footer-section";
 import FloralDivider from "@/components/floral-divider";
-import FloatingMusicButton from '@/components/floating-music-button'; // New import
+import FloatingMusicButton from '@/components/floating-music-button';
 
-// IMPORTANT: Replace this URL with your chosen royalty-free music track.
-const MUSIC_URL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3";
+// IMPORTANT: Replace this URL with your chosen royalty-free romantic music track.
+const MUSIC_URL = "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-8.mp3"; // Changed placeholder
 
 export default function HomePage() {
   const [isScrollLocked, setIsScrollLocked] = useState(true);
