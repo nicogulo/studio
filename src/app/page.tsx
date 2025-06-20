@@ -15,11 +15,10 @@ import FooterSection from "@/components/sections/footer-section";
 import FloralDivider from "@/components/floral-divider";
 import FloatingMusicButton from '@/components/floating-music-button';
 
-// IMPORTANT: The URL below is a direct link from googlevideo.com. 
-// These links can be temporary, may expire, or might not work for all users.
-// For a reliable solution, please host your own audio file (e.g., MP3) and use its direct link.
+// Music file 'song.webm' should be placed in the 'public' folder of your project.
+// This allows it to be served directly, e.g., http://localhost:3000/song.webm
 // Ensure you have the necessary rights/licenses for any music used.
-const MUSIC_URL = "https://rr4---sn-npoe7nss.googlevideo.com/videoplayback?expire=1750347836&ei=3NtTaKy_MJyk9fgP8Nba4Q0&ip=213.55.92.49&id=o-APJrQATdANPAr6FEm-JWbvBwCSMwSQWmXA9NzHT6jijj&itag=251&source=youtube&requiressl=yes&xpc=EgVo2aDSNQ%3D%3D&bui=AY1jyLPPo9fb2xBlFODLT0ZaNYG9H61MvDCnhfYIaC3YoKkXliE9MSb0UhegehO-Jr5bg4OoU8MQFYdP&vprv=1&svpuc=1&mime=audio%2Fwebm&ns=yISfHp_HdLLjqdG1Q_IvHwgQ&rqh=1&gir=yes&clen=4398170&dur=253.941&lmt=1733673442819003&keepalive=yes&lmw=1&fexp=24350590,24350737,24350827,24350961,24351173,24351316,24351318,24351528,24351759,24351907,24352011,24352022,24352102,24352188,24352236,24352321,24352394,24352396,51466643,51466698&c=TVHTML5&sefc=1&txp=5532434&n=zjRN5JcVOS7JrA&sparams=expire%2Cei%2Cip%2Cid%2Citag%2Csource%2Crequiressl%2Cxpc%2Cbui%2Cvprv%2Csvpuc%2Cmime%2Cns%2Crqh%2Cgir%2Cclen%2Cdur%2Clmt&sig=AJfQdSswRAIgN2uWFdY8Ec3kvuYIw0NFUziGbuDhZ0U_BdhzPK_YQDcCIDfz18OkCL7goKNbBE6npe5n_cr9qES5ZBTWv_j6xVww&rm=sn-xuj-5qq67s,sn-hju67l&rrc=79,104&req_id=82b45b4cbfc2a3ee&cmsv=e&rms=rdu,au&redirect_counter=2&cms_redirect=yes&ipbypass=yes&met=1750326270,&mh=Yx&mip=114.122.40.29&mm=29&mn=sn-npoe7nss&ms=rdu&mt=1750325858&mv=m&mvi=4&pl=23&lsparams=ipbypass,met,mh,mip,mm,mn,ms,mv,mvi,pl,rms&lsig=APaTxxMwRQIhAMdGSUTU1qUHwit5k5IOR116S_CLIJwhx1WXYZiqoGhyAiAXtbjbGRPvlqhszQScqxhmFeSwQyB5JB1uFwhNzy2pUw%3D%3D"; 
+const MUSIC_URL = "/song.webm"; 
 
 export default function HomePage() {
   const [isScrollLocked, setIsScrollLocked] = useState(true);
